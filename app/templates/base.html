@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="RU" lang="RU" dir="ltr">
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="imagetoolbar" content="no" />
+<link rel="stylesheet" href="/static/styles/layout.css" type="text/css" />
+<script type="text/javascript" src="/static/scripts/jquery-1.4.1.min.js"></script>
+{% block userscripts %}  {% endblock %}
+</head>
+<body id="top">
+<div class="wrapper">
+  <div id="header">
+    <h1><a href="/">Учись!</a></h1>
+    <p>{{ title }}</p>
+  </div>
+</div>
+<!-- ####################################################################################################### -->
+<div class="wrapper">
+  <div id="topbar">
+    <div class="fl_left">Tel: +7 391 2919142 | Mail: alstutor@gmail.com</div>
+    <div class="fl_right">
+      <form action="#" method="post">
+        <fieldset>
+          <legend>Поиск на сайте</legend>
+          <input type="text" value="Поиск по сайту&hellip;"  onfocus="this.value=(this.value=='Поиск на сайте&hellip;')? '' : this.value ;" />
+          <input type="submit" name="go" id="go" value="Поиск" />
+        </fieldset>
+      </form>
+    </div>
+    <br class="clear" />
+  </div>
+</div>
+<!-- ####################################################################################################### -->
+<div class="wrapper">
+  <div id="topnav">
+    <ul class="nav">
+      <li><a href="/">Главная</a></li>
+      <li><a href="/login/">Личный кабинет</a></li>
+      <li><a href="/Problem/">Задачи</a></li>
+      <li><a href="/Statistics/">Статистика соревнований</a></li>
+      <li><a href="/Message/">Общение с жюри</a></li>
+    </ul>
+    {% block menu %} {% endblock %}
+    <div class="clear"></div>
+  </div>
+</div>
+<!-- ####################################################################################################### -->
+<!--
+<div class="wrapper">
+  <div id="breadcrumb">
+    <ul>
+      <li class="first">You Are Here</li>
+      <li>&#187;</li>
+      <li><a href="#">Home</a></li>
+      <li>&#187;</li>
+      <li><a href="#">Grand Parent</a></li>
+      <li>&#187;</li>
+      <li><a href="#">Parent</a></li>
+      <li>&#187;</li>
+      <li class="current"><a href="#">Child</a></li>
+    </ul>
+  </div>
+</div> -->
+<!-- ####################################################################################################### -->
+<div class="wrapper">
+  <div class="container">
+    <div class="whitebox">
+        <!-- ####################################################################################################### -->
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+      {% block content %} {% endblock %}
+      <!-- ####################################################################################################### -->
+      <div class="clear"></div>
+    </div>
+  </div>
+</div>
+<!-- ####################################################################################################### -->
+<div class="wrapper">
+  <div id="footer">
+    <!--
+    <div class="latestgallery">
+      <h2>Latest Projects</h2>
+      <ul>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li class="last"><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+        <li class="last"><a href="#"><img src="/Content/images/demo/80x80.gif" alt="" /></a></li>
+      </ul>
+    </div>
+    <div class="footbox">
+      <h2>Latest From The Blog</h2>
+      <ul>
+        <li><a href="#">Lorem ipsum dolor</a></li>
+        <li><a href="#">Suspendisse in neque</a></li>
+        <li><a href="#">Praesent et eros</a></li>
+        <li><a href="#">Lorem ipsum dolor</a></li>
+        <li><a href="#">Suspendisse in neque</a></li>
+        <li class="last"><a href="#">Praesent et eros</a></li>
+      </ul>
+    </div>
+    <div class="footbox last">
+      <h2>Keep In Touch</h2>
+      <ul>
+        <li><a href="#">Lorem ipsum dolor</a></li>
+        <li><a href="#">Suspendisse in neque</a></li>
+        <li><a href="#">Praesent et eros</a></li>
+        <li><a href="#">Lorem ipsum dolor</a></li>
+        <li><a href="#">Suspendisse in neque</a></li>
+        <li class="last"><a href="#">Praesent et eros</a></li>
+      </ul>
+    </div>
+    <br class="clear" />
+    -->
+  </div>
+</div>
+<!-- ####################################################################################################### -->
+<div class="wrapper">
+  <div id="copyright">
+    <p class="fl_left">Copyright &copy; 2011 - All Rights Reserved - <a href="www.sibsau.ru">СибГАУ</a></p>
+    <p class="fl_right">Template by <a href="http://www.os-templates.com/" title="Open Source Templates">OS Templates</a></p>
+    <br class="clear" />
+  </div>
+</div>
+<!-- <script type="text/javascript" src="scripts/superfish.js"></script> -->
+<script type="text/javascript">
+jQuery(function () {
+    jQuery('ul.nav').superfish();
+});
+</script>
+</body>
+</html>
