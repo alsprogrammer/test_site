@@ -7,7 +7,14 @@ This application is developed for use at educational organisations. The main ide
 The test itself is defined as Microsoft .Net object written in C#. It is my legacy code and it takes a lot of time to rewrite it in Python :)
 
 ## Dependencies
+The Python interpreter itself, of course :)
 The web part of the project is based on the [Flask](http://flask.pocoo.org/) framework.
 As the project uses the legacy library written in C#, the project also uses the [Python for .NET](http://pythonnet.github.io/) project.
+
+## Installation
+Just install Flask using pip:
+    pip install flask
+Then install Pythonnet:
+    pip install pythonnet
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
