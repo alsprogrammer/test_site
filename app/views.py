@@ -4,17 +4,17 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, lm, oid
 from forms import LoginForm
-#from models import User, ROLE_USER, ROLE_ADMIN
-import clr
-clr.AddReference("TestClass")
-from TestClass import TestImage, Student, Group, WholeTest, Test, StudentTestAnswer
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    test = WholeTest("f:\\Test\\ttt.xml")
-    return "Hello, world!"#render_template("index.html", title=u"Добро пожаловать!", user=user, posts=posts)
+    return render_template("index.html", title=u"Добро пожаловать!")
+
+
+@app.route('/test_start')
+def test_start():
+    return render_template("test.html", title=u"Добро пожаловать!")
 
 
 @app.route('/login/',  methods=['GET', 'POST'])
