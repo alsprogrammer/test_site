@@ -12,7 +12,7 @@ def index():
     return render_template("index.html", title=u"Добро пожаловать!")
 
 
-@app.route('/test_start')
+@app.route('/test/start')
 def test_start():
     return render_template("test.html", title=u"Добро пожаловать!")
 

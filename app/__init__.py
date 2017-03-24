@@ -13,6 +13,9 @@ lm = LoginManager()
 lm.init_app(app)
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 
-test_set = BeautifulSoup(open(os.path.join(basedir, "test_set.xml")), "lxml")
-
 from app import views, models
+
+test_set = models.TestSet(open(os.path.join(basedir, "test_set.xml")))
+
+students_ready_to_test = {}
+testing_students = {}
