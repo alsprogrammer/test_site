@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block userscripts %}  {% endblock %}
+{% block menu %} {% endblock %}
+
+{% block content %}
+    <h3>Добавление новой группы</h3>
+    <form action=""  method="post" name="login">
+        {{ form.hidden_tag() }}
+        <p>Введите наименование специальности: {{ form.speciality(size=80) }}</p>
+        <p>Введите год начала обучения: {{ form.start_year(size=4) }}</p>
+        <p>Список группы:</p>
+        <p>{{ form.students_list(rows='20',cols='80') }}</p>
+        <p><input type="submit" value="Войти"></p>
+    </form>
+{% endblock %}
