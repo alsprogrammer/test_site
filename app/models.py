@@ -86,24 +86,21 @@ class TestSet:
 
 
 class TestingStudent:
-    """ A student-test combination being tested.
+    """A student-test combination being tested.
     Contains a beautifulsoup xml description of the test and the student object.
     """
 
     def __init__(self):
-        """
-        Create a new empty student-test combination.
-        """
+        """Create a new empty student-test combination."""
         self.test_bs = None
         self.student = None
 
     def __init__(self, student, test_bs):
-        """
-        Create a new empty student-test combination.
+        """Create a new empty student-test combination.
 
         Keyword arguments:
         student - a new-joined student.
-         test_bs - beautyfulsoup description of the test
+        test_bs - beautyfulsoup description of the test
         """
         self.test_bs = test_bs
         self.student = student

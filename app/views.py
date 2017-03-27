@@ -9,11 +9,15 @@ from forms import *
 @app.route('/')
 @app.route('/index')
 def index():
+    """Show the first page of the testing system."""
     return render_template("index.html", title=u"Добро пожаловать!")
 
 
 @app.route('/admin/group/new', methods=['GET', 'POST'])
 def admin_group_new():
+    """Add new group to the testing system.
+    The group xml file will be saved to the ... folder
+    """
     form = GroupForm()
     if form.validate_on_submit():
         flash(u"Группа добавлена")
@@ -23,6 +27,7 @@ def admin_group_new():
 
 @app.route('/test/start')
 def test_start():
+    """Show the test system description page before test starts"""
     return render_template("test.html", title=u"Добро пожаловать!")
 
 
