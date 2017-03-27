@@ -15,7 +15,10 @@ oid = OpenID(app, os.path.join(basedir, 'tmp'))
 
 from app import views, models
 
+# Loads the test set from the predefined file
 test_set = models.TestSet(open(os.path.join(basedir, "test_set.xml")))
 
+# Creates the dict for the student-test pairs
 students_ready_to_test = {}
+# Creates the dict for the student-test pairs that are in progress at the moment
 testing_students = {}
