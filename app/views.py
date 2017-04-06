@@ -20,8 +20,19 @@ def admin_group_new():
     """
     form = GroupForm()
     if form.validate_on_submit():
-        flash(u"Группа добавлена")
-        return redirect('/admin/group/list')
+        source_xml = '<?xml version="1.0" encoding="utf-8" standalone="yes"?><group></group>'
+        if request.method == 'POST':
+            source_xml.group.speciality
+            for student_name in form.students_list:
+                names = student_name.split()
+
+            values = {'first_name': form.first_name.data,
+                      'age': form.age.data,
+                      'gender': form.gender.data,
+                      'search_gender': form.search_gender.data}
+            flash(u"Группа добавлена")
+            return redirect('/admin/group/list')
+
     return render_template("new_group.html", title=u"Добро пожаловать!", form=form)
 
 
