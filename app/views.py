@@ -2,11 +2,8 @@
 
 import os
 from flask import render_template, flash, redirect, session, url_for, request, g
-from flask_login import login_user, logout_user, current_user, login_required
 from app import app, lm, oid
 from forms import *
-from bs4 import BeautifulSoup
-from config import DATA_PATH
 from models import *
 
 @app.route('/')
@@ -23,18 +20,24 @@ def admin_group_new():
     """
     form = GroupForm()
     if form.validate_on_submit():
-        if request.method == 'POST':
-            group = Group(form.speciality.data, form.start_year.data, form.name.data)
-            for student_name in form.students_list.data.splitlines():
-                if student_name != u"\n":
-                    names = student_name.split(" ")
+        group = Group(form.speciality.data, form.start_year.data, form.name.data)
+        for student_name in form.students_list.data.splitlines():
+            if student_name != u"\n":
+                names = student_name.split(" ")
+                if len(names) >= 3:
                     student = Student(names[0], names[1], names[2], group)
-                    group.add_student(student)
+                elif len(names) == 2:
+                    student = Student(names[0], first_name=names[1], group=group)
+                elif len(names) == 1:
+                    student = Student(names[0], group=group)
+                else:
+                    continue
+                group.add_student(student)
 
-            group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
+        group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
 
-            flash(u"Группа добавлена")
-            return redirect('/admin/group/list')
+        flash(u"Группа добавлена")
+        return redirect('/admin/group/list')
 
     return render_template("new_group.html", title=u"Добро пожаловать!", form=form)
 
