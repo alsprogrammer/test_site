@@ -3,7 +3,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_openid import OpenID
 from config import basedir
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 
 
 app = Flask(__name__)

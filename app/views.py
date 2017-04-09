@@ -1,10 +1,13 @@
 # coding: utf8
 
+import os
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, lm, oid
 from forms import *
-
+from bs4 import BeautifulSoup
+from config import DATA_PATH
+from models import *
 
 @app.route('/')
 @app.route('/index')
@@ -20,16 +23,14 @@ def admin_group_new():
     """
     form = GroupForm()
     if form.validate_on_submit():
-        source_xml = '<?xml version="1.0" encoding="utf-8" standalone="yes"?><group></group>'
         if request.method == 'POST':
-            source_xml.group.speciality
-            for student_name in form.students_list:
+            group = Group(form.speciality.data, form.start_year.data, form.name.data)
+            for student_name in form.students_list.data.splitlines():
                 names = student_name.split()
+                student = Student(names[0], names[1], names[2], group)
+                group.add_student(student)
+                group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
 
-            values = {'first_name': form.first_name.data,
-                      'age': form.age.data,
-                      'gender': form.gender.data,
-                      'search_gender': form.search_gender.data}
             flash(u"Группа добавлена")
             return redirect('/admin/group/list')
 

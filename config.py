@@ -2,6 +2,8 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+DATA_PATH = 'f:\\'
+
 CSRF_ENABLED = True
 SECRET_KEY = 'sjjhdu0938dffiuugkirrg1877rt'
 OPENID_PROVIDERS = [

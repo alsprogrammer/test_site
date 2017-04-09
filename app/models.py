@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import os
+from config import DATA_PATH
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -61,6 +63,22 @@ class Group:
         self.students.append(student)
         student.group = self
 
+    def save_to_xml_file(self, file_name):
+        source_xml = BeautifulSoup('<?xml version="1.0" encoding="utf-8" standalone="yes"?><group></group>')
+        source_xml.group.speciality = self.speciality
+        source_xml.start_year = self.start_year
+        group_tag = source_xml.group
+        for student_name in self.students:
+            names = student_name.split()
+            student_tag = source_xml.new_tag("student")
+            student_tag['first_name'] = names[1]
+            student_tag['sur_name'] = names[2]
+            student_tag['last_name'] = names[0]
+
+            source_xml.group.append(student_tag)
+            with open(os.path.join(DATA_PATH, "out.txt"), "w") as out:
+                out.write(source_xml.prettify("utf-8", "xml"))
+
 
 class TestSet:
     """ A set of tests.
@@ -74,7 +92,7 @@ class TestSet:
         Keyword arguments:
         xml_text - the xml test description to create test from
         """
-        self.test_soup = BeautifulSoup(xml_text, "xml")
+        self.test_soup = BeautifulSoup(xml_text)
 
     def __getitem__(self, item):
         """Access the test by its number
