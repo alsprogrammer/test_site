@@ -26,10 +26,12 @@ def admin_group_new():
         if request.method == 'POST':
             group = Group(form.speciality.data, form.start_year.data, form.name.data)
             for student_name in form.students_list.data.splitlines():
-                names = student_name.split()
-                student = Student(names[0], names[1], names[2], group)
-                group.add_student(student)
-                group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
+                if student_name != u"\n":
+                    names = student_name.split(" ")
+                    student = Student(names[0], names[1], names[2], group)
+                    group.add_student(student)
+
+            group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
 
             flash(u"Группа добавлена")
             return redirect('/admin/group/list')
