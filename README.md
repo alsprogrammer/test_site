@@ -1,11 +1,9 @@
 # Statistics-based knowledge assessment web application
 
-Test web application for knowledge assestment.
+Test web application for knowledge assesstment.
 
 ## What is it?
-This application is developed for use at educational organisations. The main idea is to determine whether a student passed the test using statistical approach. The application determines the threshold that can be passed by chance for the test student is passing. If the student overcomes that threshold the test is passed.
-The test itself is defined as Microsoft .Net object written in C#. It is my legacy code and it takes a lot of time to rewrite it in Python :) Unfortunately, i cannot run it on the server so this site allows to get students answers only.
-The answers are to be processed later on the workstation.
+This application is developed for use at educational organisations. The main idea is to determine whether a student passed the assesstment using statistical approach. The application determines the threshold that can be passed by chance for the assesstment a student is passing. If the student overcomes that threshold the assessment is passed and the result is positive.
 
 ## Dependencies
 The Python interpreter itself, of course :)
