@@ -1,12 +1,24 @@
-from bs4 import BeautifulSoup
-import os
-from config import DATA_PATH
-
-ROLE_USER = 0
-ROLE_ADMIN = 1
+from abc import ABCMeta, abstractmethod
 
 
-class Student:
+class FromToDict():
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def to_dict(self):
+        """
+        Get a json description of the object, all subclasses are represented by its string representations
+        :return: json object
+        """
+
+    @abstractmethod
+    def from_dict(self):
+        """
+        Load an object from its json desciprtion
+        :return: None
+        """
+
+class Student(FromToDict):
     """The student class. Describes the student's name and group"""
 
     def __init__(self):
@@ -29,6 +41,9 @@ class Student:
         self.sur_name = sur_name
         self.last_name = last_name
         self.group = group
+
+    def __repr__(self):
+        return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.last_name, gname=self.group)
 
 
 class Group:
@@ -64,22 +79,57 @@ class Group:
         self.students.append(student)
         student.group = self
 
-    def save_to_xml_file(self, file_name):
-        source_xml = BeautifulSoup('<?xml version="1.0" encoding="utf-8" standalone="yes"?><group></group>', "xml")
-        source_xml.group["speciality"] = self.speciality
-        source_xml.group["start_year"] = self.start_year
-        source_xml.group["name"] = self.name
-        group_tag = source_xml.group
-        for cur_student in self.students:
-            student_tag = source_xml.new_tag("student")
-            student_tag['first_name'] = cur_student.first_name
-            student_tag['sur_name'] = cur_student.sur_name
-            student_tag['last_name'] = cur_student.last_name
+    def __repr__(self):
+        return "{name} ({year}, {spec})".format(name=self.name, year=self.start_year, spec=self.speciality)
 
-            source_xml.group.append(student_tag)
 
-        with open(os.path.join(DATA_PATH, "out.txt"), "w") as out:
-            out.write(source_xml.prettify("utf-8", "xml"))
+class Task(FromToDict):
+    """Describes single task in an assessment"""
+    def __init__(self):
+        self.stem = ""
+        self.picture = None
+        self.answers = []
+        self.distractors = []
+
+    def __init__(self, stem, picture=None):
+        self.stem = stem
+        self.picture = picture
+
+    def add_answer(self, answer):
+        """
+        Add answer tp the task
+        :param answer: answer to add
+        :return: None
+        """
+        if isinstance(answer, str) or isinstance(answer, TaskOption):
+            self.answers.append(answer)
+        else:
+            raise TypeError()
+
+    def add_distractor(self, distractor):
+        """
+        Add answer tp the task
+        :param distractor: answer to add
+        :return: None
+        """
+        if isinstance(distractor, str) or isinstance(distractor, TaskOption):
+            self.distractors.append(distractor)
+        else:
+            raise TypeError()
+
+    def __repr__(self):
+        return "{text}".format(text=self.stem)
+
+
+class TaskOption(FromToDict):
+    """Single task element - answer or distractor"""
+    def __init__(self):
+        self.text = ""
+        self.picture = None
+
+    def __init__(self, text, picture=None):
+        self.text = text
+        self.picture = picture
 
 
 class TestSet:
