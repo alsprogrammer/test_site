@@ -209,14 +209,14 @@ class TasksPool(FromToDict):
                 options.append({"text": cur_answer.text, "picture": cur_answer.picture, "uuid": cur_uuid})
                 new_assessment.answers_uuids.append(cur_uuid)
 
-            for cur_distractor in cur_task.answers:
+            for cur_distractor in cur_task.distractors:
                 cur_uuid = uuid.uuid4().hex
                 options.append({"text": cur_distractor.text, "picture": cur_distractor.picture, "uuid": cur_uuid})
                 new_assessment.distractors_uuids.append(cur_uuid)
 
+            random.shuffle(options)
             new_task = {"stem": cur_task.stem, "picture": cur_task.picture, "theme": cur_task.theme, "options": options}
-
-        new_assessment.tasks.append(new_task)
+            new_assessment.tasks.append(new_task)
 
         return new_assessment
 
