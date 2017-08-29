@@ -101,6 +101,8 @@ class Task(FromToDict):
         self.theme = theme
         self.stem = stem
         self.picture = picture
+        self.answers = []
+        self.distractors = []
 
     def add_answer(self, answer):
         """
@@ -124,8 +126,14 @@ class Task(FromToDict):
         else:
             raise TypeError()
 
+    def from_dict(self):
+        pass
+
+    def to_dict(self):
+        pass
+
     def __repr__(self):
-        return "{text}".format(text=self.stem)
+        return "{}".format(self.stem)
 
 
 class TaskOption(FromToDict):
@@ -138,6 +146,15 @@ class TaskOption(FromToDict):
         self.text = text
         self.picture = picture
 
+    def from_dict(self):
+        pass
+
+    def to_dict(self):
+        pass
+
+    def __repr__(self):
+        return "{}".format(self.text)
+
 
 class TasksPool(FromToDict):
     """A set of tasks to choose the tasks for a particular assessment from"""
@@ -149,16 +166,36 @@ class TasksPool(FromToDict):
         self.tasks = copy.copy(tasks_list)
 
     def __init__(self, assessment_desciption):
+        self.tasks = []
         xml_file = open(assessment_desciption)
         text = xml_file.readlines()
         xml_file.close()
 
         for task in BeautifulSoup(" ".join(text), "xml").findAll("Question"):
-            pass
+            image = task.find("Image")
+            image_text = image.contents[0] if image else None
+            stem = task.find("Text").contents[0]
+            new_task = Task(task.contents[1].text, theme=task["theme"], picture=image_text)
+            options = task.findAll("Variant")
+            for option in options:
+                opt_text = option.find("Text").contents
+                opt_image = option.find("Image")
+                opt_image_text = image.contents[0] if opt_image else None
+                if option["right"] == "+":
+                    new_answer = TaskOption(opt_text, picture=opt_image_text)
+                    new_task.add_answer(new_answer)
+                else:
+                    new_distractor = TaskOption(opt_text, picture=opt_image_text)
+                    new_task.add_distractor(new_distractor)
+
+            self.tasks.append(new_task)
 
     def create_test(self, tasks_num):
         if tasks_num <= 0:
-            raise ValueError("Wrong number of the tasks in the assessment")
+            raise ValueError("Wrong number of the tasks in the assessment: the number of tasks can't be zero or negative")
+
+        if tasks_num > len(self.tasks):
+            raise ValueError("Wrong number of the tasks in the assessment: greater than tasks in task pool")
 
         new_assessment = Assessment()
         tasks = random.sample(self.tasks, tasks_num)
@@ -177,6 +214,8 @@ class TasksPool(FromToDict):
                 options.append({"text": cur_distractor.text, "picture": cur_distractor.picture, "uuid": cur_uuid})
                 new_assessment.distractors_uuids.append(cur_uuid)
 
+        new_assessment.tasks.append(cur_task)
+
         return new_assessment
 
     def to_dict(self):
@@ -192,6 +231,12 @@ class Assessment(FromToDict):
         self.answers_uuids = [] # a list of answers UUIDs
         self.distractors_uuids = [] # a list of distractors UUIDs
         self.tasks = [] # a list of dicts each contains stem and a list of options (not answers/distractors)
+
+    def from_dict(self):
+        pass
+
+    def to_dict(self):
+        pass
 
 
 class TestingStudent:
