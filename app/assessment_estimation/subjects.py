@@ -1,4 +1,8 @@
+from bs4 import BeautifulSoup
 from abc import ABCMeta, abstractmethod
+import copy
+import uuid
+import random
 
 
 class FromToDict():
@@ -17,6 +21,7 @@ class FromToDict():
         Load an object from its json desciprtion
         :return: None
         """
+
 
 class Student(FromToDict):
     """The student class. Describes the student's name and group"""
@@ -86,12 +91,14 @@ class Group:
 class Task(FromToDict):
     """Describes single task in an assessment"""
     def __init__(self):
+        self.theme = ""
         self.stem = ""
         self.picture = None
         self.answers = []
         self.distractors = []
 
-    def __init__(self, stem, picture=None):
+    def __init__(self, stem, theme=None, picture=None):
+        self.theme = theme
         self.stem = stem
         self.picture = picture
 
@@ -132,27 +139,59 @@ class TaskOption(FromToDict):
         self.picture = picture
 
 
-class TestSet:
-    """ A set of tests.
-    Contains a beautifulsoup xml description of the tests set.
-    Single test xml description may be accessed through the number of  the test.
-    """
+class TasksPool(FromToDict):
+    """A set of tasks to choose the tasks for a particular assessment from"""
 
-    def __init__(self, xml_text):
-        """Create a new test set from the xml test description
+    def __init__(self):
+        self.tasks = []
 
-        Keyword arguments:
-        xml_text - the xml test description to create test from
-        """
-        self.test_soup = BeautifulSoup(xml_text, "xml")
+    def __init__(self, tasks_list):
+        self.tasks = copy.copy(tasks_list)
 
-    def __getitem__(self, item):
-        """Access the test by its number
+    def __init__(self, assessment_desciption):
+        xml_file = open(assessment_desciption)
+        text = xml_file.readlines()
+        xml_file.close()
 
-        Keyword arguments:
-        item - the number of the test to get
-        """
-        return self.test_soup.TestSet.findAll("Test")[item]
+        for task in BeautifulSoup(" ".join(text), "xml").findAll("Question"):
+            pass
+
+    def create_test(self, tasks_num):
+        if tasks_num <= 0:
+            raise ValueError("Wrong number of the tasks in the assessment")
+
+        new_assessment = Assessment()
+        tasks = random.sample(self.tasks, tasks_num)
+        random.shuffle(tasks)
+
+        for cur_task in tasks:
+            options = []
+
+            for cur_answer in cur_task.answers:
+                cur_uuid = uuid.uuid4().hex
+                options.append({"text": cur_answer.text, "picture": cur_answer.picture, "uuid": cur_uuid})
+                new_assessment.answers_uuids.append(cur_uuid)
+
+            for cur_distractor in cur_task.answers:
+                cur_uuid = uuid.uuid4().hex
+                options.append({"text": cur_distractor.text, "picture": cur_distractor.picture, "uuid": cur_uuid})
+                new_assessment.distractors_uuids.append(cur_uuid)
+
+        return new_assessment
+
+    def to_dict(self):
+        pass
+
+    def from_dict(self):
+        pass
+
+
+class Assessment(FromToDict):
+    """The assessment for the student"""
+    def __init__(self):
+        self.answers_uuids = [] # a list of answers UUIDs
+        self.distractors_uuids = [] # a list of distractors UUIDs
+        self.tasks = [] # a list of dicts each contains stem and a list of options (not answers/distractors)
 
 
 class TestingStudent:

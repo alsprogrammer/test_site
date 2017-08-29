@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 import os
 from config import DATA_PATH
 
@@ -94,7 +93,7 @@ class TestSet:
         Keyword arguments:
         xml_text - the xml test description to create test from
         """
-        self.test_soup = BeautifulSoup(xml_text, "xml")
+        #self.test_soup = BeautifulSoup(xml_text, "xml")
 
     def __getitem__(self, item):
         """Access the test by its number
