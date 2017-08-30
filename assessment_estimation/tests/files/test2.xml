@@ -10,7 +10,7 @@
       <Text>&lt;{v1, v2, v3, v4}, {(v1, v1), (v1, v2), (v1, v4), (v2, v2), (v2, v3), (v3, v1), (v3, v3), (v4, v1}, (v4, v2), (v4, v3)&gt;</Text>
     </Variant>
   </Question>
-  <Question number="2" theme="Графический способ">
+  <Question number="1" theme="Графический способ">
     <Text>Выберите графическое представление графа, соответсвующее матрице смежности</Text>
     <Variant right="-">
       <Text> _</Text>

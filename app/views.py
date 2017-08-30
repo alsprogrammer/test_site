@@ -5,6 +5,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from app import app, lm, oid
 from forms import *
 from models import *
+from assessment_estimation.subjects import *
 
 @app.route('/')
 @app.route('/index')
