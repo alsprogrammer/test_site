@@ -1,4 +1,5 @@
 import random
+import copy
 
 
 def answer_item(answers_num=1, distractors_num=1):
@@ -35,6 +36,7 @@ def assesst(items_num=12, assesst_props=[{'answers_num': 1, 'distractors_num': 1
     answers, whole distractors number and the 'not checked' distractors number
     :return: The score of the test
     """
+    assesst_props = copy.copy(assesst_props)
     if choice and len(assesst_props) != items_num:
         raise KeyError('The length of the assesst_props and the items_num should be the same!')
 

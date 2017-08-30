@@ -3,6 +3,9 @@ from abc import ABCMeta, abstractmethod
 import copy
 import uuid
 import random
+import datetime
+from .func_libs import assesst
+import numpy as np
 
 
 class FromToDict():
@@ -196,7 +199,7 @@ class TasksPool(FromToDict):
 
             self.tasks.append(new_task)
 
-    def create_test(self, tasks_num):
+    def create_test(self, tasks_num, student):
         if tasks_num <= 0:
             raise ValueError("Wrong number of the tasks in the assessment: the number of tasks can't be zero or negative")
 
@@ -207,6 +210,7 @@ class TasksPool(FromToDict):
         tasks = random.sample(self.tasks, tasks_num)
         random.shuffle(tasks)
 
+        descr = []
         for cur_task in tasks:
             options = []
 
@@ -224,6 +228,33 @@ class TasksPool(FromToDict):
             new_task = {"stem": cur_task.stem, "picture": cur_task.picture, "theme": cur_task.theme, "options": options}
             new_assessment.tasks.append(new_task)
 
+            descr.append({'answers_num': len(cur_task.answers), 'distractors_num': len(cur_task.distractors)})
+
+        assessments_num = 10000
+
+        assessments = []
+        for i in range(assessments_num):
+            assessments.append(assesst(items_num=len(tasks), assesst_props=descr, choice=True))
+
+        values = np.unique(assessments)
+        values1 = np.append(values, [1.1])
+
+        hist, bins = np.histogram(assessments, bins=values1)
+
+        hist_sum = np.sum(hist)
+
+        hist = list(hist / float(hist_sum))
+
+        sum = 0
+        index = 0
+        hist.reverse()
+        for i, elem in enumerate(hist):
+            sum += elem
+            if sum > 0.05:
+                index = i
+                break
+        new_assessment.threshold = values[-(index + 1)] * 100
+
         return new_assessment
 
     def to_dict(self):
@@ -235,10 +266,16 @@ class TasksPool(FromToDict):
 
 class Assessment(FromToDict):
     """The assessment for the student"""
-    def __init__(self):
-        self.answers_uuids = [] # a list of answers UUIDs
-        self.distractors_uuids = [] # a list of distractors UUIDs
-        self.tasks = [] # a list of dicts each contains stem and a list of options (not answers/distractors)
+    def __init__(self, student=None):
+        self.created = datetime.datetime.now()
+        self.started = None
+        self.ended = None
+        self.answer_times = []
+        self.student = student  # the student to be tested
+        self.answers_uuids = []  # a list of answers UUIDs
+        self.distractors_uuids = []  # a list of distractors UUIDs
+        self.tasks = []  # a list of dicts each contains stem and a list of options (not answers/distractors)
+        self.threshold = 50
 
     def from_dict(self):
         pass
