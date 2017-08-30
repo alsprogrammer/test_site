@@ -308,6 +308,8 @@ class Assessment(FromToDict):
         self.tasks = []  # a list of dicts each contains stem and a list of options (not answers/distractors)
         self.threshold = 50
         self.checked_uuids = set([])
+        self.mistaken_uuids = set([])
+        self.mistaken_tasks = []
 
     def get_score(self, answers):
         """
@@ -316,7 +318,7 @@ class Assessment(FromToDict):
         :return: the final score from 0 to 100, the assessment threshold, the calculated score
         """
         if not isinstance(answers, set):
-            raise ValueError("The answers should be the set of uuids.")
+            raise ValueError("The answers should be a set of uuids.")
 
         self.checked_uuids = copy.copy(answers)
 
@@ -326,14 +328,15 @@ class Assessment(FromToDict):
         score = float(len(self.answers_uuids & answers) + len(self.distractors_uuids & not_checked)) / float(len(all_options)) * 100.0
         real_score = (score - self.threshold) / (100 - self.threshold) * 100.0
 
-        return real_score if real_score > 0 else 0, self.threshold, score
+        self.mistaken_uuids = self.distractors_uuids.intersection(self.checked_uuids).union(self.answers_uuids.difference(self.checked_uuids))
 
-    def get_mistaken_option_uuids(self):
-        """
-        Return a list of options where the mistakes were made
-        :return: a list of options where the mistakes were made
-        """
-        return self.distractors_uuids.intersection(self.checked_uuids).union(self.answers_uuids.difference(self.checked_uuids))
+        for cur_mistake in self.mistaken_uuids:
+            for cur_task in self.tasks:
+                if cur_mistake in map(lambda x: x["uuid"], cur_task["options"]):
+                    if cur_task not in self.mistaken_tasks:
+                        self.mistaken_tasks.append(cur_task)
+
+        return real_score if real_score > 0 else 0, self.threshold, score
 
     def from_dict(self):
         pass
