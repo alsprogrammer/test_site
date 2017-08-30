@@ -163,12 +163,15 @@ class TasksPool(FromToDict):
     """A set of tasks to choose the tasks for a particular assessment from"""
 
     def __init__(self):
+        self.threshold = 0.05
         self.tasks = []
 
     def __init__(self, tasks_list):
+        self.threshold = 0.05
         self.tasks = copy.copy(tasks_list)
 
     def __init__(self, assessment_desciption):
+        self.threshold = 0.05
         self.tasks = []
         xml_file = open(assessment_desciption)
         text = xml_file.readlines()
@@ -250,7 +253,7 @@ class TasksPool(FromToDict):
         hist.reverse()
         for i, elem in enumerate(hist):
             sum += elem
-            if sum > 0.05:
+            if sum > self.threshold:
                 index = i
                 break
         new_assessment.threshold = values[-(index + 1)] * 100
