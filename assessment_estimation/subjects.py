@@ -109,8 +109,8 @@ class Task(FromToDict):
 
     def add_answer(self, answer):
         """
-        Add answer tp the task
-        :param answer: answer to add
+        Add answer to the task
+        :param answer: TaskOption, answer to add
         :return: None
         """
         if isinstance(answer, str) or isinstance(answer, TaskOption):
@@ -120,8 +120,8 @@ class Task(FromToDict):
 
     def add_distractor(self, distractor):
         """
-        Add answer tp the task
-        :param distractor: answer to add
+        Add distractor to the task
+        :param distractor: TaskOption, distractor to add
         :return: None
         """
         if isinstance(distractor, str) or isinstance(distractor, TaskOption):
@@ -167,10 +167,18 @@ class TasksPool(FromToDict):
         self.tasks = []
 
     def __init__(self, tasks_list):
+        """
+        Create tasks pool
+        :param tasks_list: a list of tasks to add
+        """
         self.threshold = 0.05
         self.tasks = copy.copy(tasks_list)
 
     def __init__(self, assessment_desciption):
+        """
+        Create a new task pool from xml
+        :param assessment_desciption: a xml to create tasks pool from
+        """
         self.threshold = 0.05
         self.tasks = []
         xml_file = open(assessment_desciption)
@@ -203,6 +211,12 @@ class TasksPool(FromToDict):
             self.tasks.append(new_task)
 
     def create_test(self, tasks_num, student):
+        """
+        Create new assessmetn
+        :param tasks_num: the number of the tasks in newly creating assessment
+        :param student: a student the assessment is creating for
+        :return: new assessment from tasks pool for the given student
+        """
         if tasks_num <= 0:
             raise ValueError("Wrong number of the tasks in the assessment: the number of tasks can't be zero or negative")
 
@@ -270,6 +284,10 @@ class TasksPool(FromToDict):
 class Assessment(FromToDict):
     """The assessment for the student"""
     def __init__(self, student=None):
+        """
+        Create a new assessment fro the given student
+        :param student: a student to create the assessment for
+        """
         self.created = datetime.datetime.now()
         self.started = None
         self.ended = None
@@ -279,10 +297,18 @@ class Assessment(FromToDict):
         self.distractors_uuids = set([])  # a list of distractors UUIDs
         self.tasks = []  # a list of dicts each contains stem and a list of options (not answers/distractors)
         self.threshold = 50
+        self.checked_uuids = set([])
 
     def get_score(self, answers):
+        """
+        Calculate the score for the given answer
+        :param answers: a set of checked uuids (the options for the tasks)
+        :return: the final score from 0 to 100, the assessment threshold, the calculated score
+        """
         if not isinstance(answers, set):
             raise ValueError("The answers should be the set of uuids.")
+
+        self.checked_uuids = copy.copy(answers)
 
         all_options = self.answers_uuids.union(self.distractors_uuids)
         not_checked = all_options.difference(answers)
@@ -291,6 +317,13 @@ class Assessment(FromToDict):
         real_score = (score - self.threshold) / (100 - self.threshold) * 100.0
 
         return real_score if real_score > 0 else 0, self.threshold, score
+
+    def get_mistaken_option_uuids(self):
+        """
+        Return a list of options where the mistakes were made
+        :return: a list of options where the mistakes were made
+        """
+        return self.distractors_uuids.intersection(self.checked_uuids).union(self.answers_uuids.difference(self.checked_uuids))
 
     def from_dict(self):
         pass
