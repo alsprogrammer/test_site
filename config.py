@@ -12,3 +12,7 @@ OPENID_PROVIDERS = [
     { 'name': 'AOL', 'url': 'http://openid.aol.com/<username>' },
     { 'name': 'Flickr', 'url': 'http://www.flickr.com/<username>' },
     { 'name': 'MyOpenID', 'url': 'https://www.myopenid.com' }]
+
+AWAITING = {}  # the dict of the assessments prepared to pass
+PASSING = {}  # the dict of the assessments that are passing at the moment
+PASSED = {}  # the dict of the passed assessments

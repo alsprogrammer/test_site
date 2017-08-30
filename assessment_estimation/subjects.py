@@ -249,28 +249,38 @@ class TasksPool(FromToDict):
 
         assessments_num = 10000
 
-        assessments = []
-        for i in range(assessments_num):
-            assessments.append(assesst(items_num=len(tasks), assesst_props=descr, choice=True))
+        while True:
+            assessments = []
+            for i in range(assessments_num):
+                assessments.append(assesst(items_num=len(tasks), assesst_props=descr, choice=True))
 
-        values = np.unique(assessments)
-        values1 = np.append(values, [1.1])
+            values = np.unique(assessments)
+            values1 = np.append(values, [1.1])
 
-        hist, bins = np.histogram(assessments, bins=values1)
+            hist, bins = np.histogram(assessments, bins=values1)
 
-        hist_sum = np.sum(hist)
+            hist_sum = np.sum(hist)
 
-        hist = list(hist / float(hist_sum))
+            hist = list(hist / float(hist_sum))
 
-        sum = 0
-        index = 0
-        hist.reverse()
-        for i, elem in enumerate(hist):
-            sum += elem
-            if sum > self.threshold:
-                index = i
+            sum = 0
+            index = 0
+            hist.reverse()
+
+            step_found = True
+            for i, elem in enumerate(hist):
+                sum += elem
+                if hist[i] >= hist[i + 1]:
+                    step_found = False
+                    break
+
+                if sum > self.threshold:
+                    index = i
+                    break
+
+            new_assessment.threshold = values[-(index + 1)] * 100
+            if index != 0 and step_found:
                 break
-        new_assessment.threshold = values[-(index + 1)] * 100
 
         return new_assessment
 
