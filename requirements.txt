@@ -1,2 +1,2 @@
 flask
-beautilfulsoup4
+bs4

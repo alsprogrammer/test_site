@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from abc import ABCMeta, abstractmethod
 import copy
 import uuid
@@ -97,7 +97,7 @@ class Task(FromToDict):
         self.answers = []
         self.distractors = []
 
-    def __init__(self, stem, theme=None, picture=None):
+    def __init__(self, stem="", theme=None, picture=None):
         self.theme = theme
         self.stem = stem
         self.picture = picture
@@ -142,7 +142,7 @@ class TaskOption(FromToDict):
         self.text = ""
         self.picture = None
 
-    def __init__(self, text, picture=None):
+    def __init__(self, text="", picture=None):
         self.text = text
         self.picture = picture
 
@@ -172,21 +172,27 @@ class TasksPool(FromToDict):
         xml_file.close()
 
         for task in BeautifulSoup(" ".join(text), "xml").findAll("Question"):
-            image = task.find("Image")
-            image_text = image.contents[0] if image else None
-            stem = task.find("Text").contents[0]
-            new_task = Task(task.contents[1].text, theme=task["theme"], picture=image_text)
-            options = task.findAll("Variant")
-            for option in options:
-                opt_text = option.find("Text").contents
-                opt_image = option.find("Image")
-                opt_image_text = image.contents[0] if opt_image else None
-                if option["right"] == "+":
-                    new_answer = TaskOption(opt_text, picture=opt_image_text)
-                    new_task.add_answer(new_answer)
-                else:
-                    new_distractor = TaskOption(opt_text, picture=opt_image_text)
-                    new_task.add_distractor(new_distractor)
+            new_task = Task()
+            new_task.theme = task.attrs["theme"]
+            for child in task.children:
+                if isinstance(child, Tag):
+                    if child.name == "Text":
+                        new_task.stem = child.text
+                    elif child.name == "Image":
+                        new_task.picture = child.text
+                    elif child.name == "Variant":
+                        new_option = TaskOption()
+                        for element in child.children:
+                            if isinstance(element, Tag):
+                                if element.name == "Text":
+                                    new_option.text = element.text
+                                elif element.name == "Image":
+                                    new_option.picture = element.text
+
+                        if child.attrs["right"] == "+":
+                            new_task.answers.append(new_option)
+                        else:
+                            new_task.distractors.append(new_option)
 
             self.tasks.append(new_task)
 
