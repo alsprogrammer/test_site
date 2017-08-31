@@ -2,10 +2,11 @@
 
 import os
 from flask import render_template, flash, redirect, session, url_for, request, g
-from app import app, lm, oid
+from app import app, lm, oid, groups_to_test
 from forms import *
 from models import *
 from assessment_estimation.subjects import *
+import uuid
 
 @app.route('/')
 @app.route('/index')
@@ -35,7 +36,8 @@ def admin_group_new():
                     continue
                 group.add_student(student)
 
-        group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
+        #group.save_to_xml_file(os.path.join(DATA_PATH, "group.xml"))
+        groups_to_test.update({"uuid": uuid.uuid4().hex, "group": group})
 
         flash(u"Группа добавлена")
         return redirect('/admin/group/list')

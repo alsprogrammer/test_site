@@ -50,11 +50,17 @@ class Student(FromToDict):
         self.last_name = last_name
         self.group = group
 
+    def from_dict(self):
+        pass
+
+    def to_dict(self):
+        pass
+
     def __repr__(self):
         return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.last_name, gname=self.group)
 
 
-class Group:
+class Group(FromToDict):
     """The group class. Describes the group and its students"""
 
     def __init__(self):
@@ -86,6 +92,12 @@ class Group:
         """
         self.students.append(student)
         student.group = self
+
+    def from_dict(self):
+        pass
+
+    def to_dict(self):
+        pass
 
     def __repr__(self):
         return "{name} ({year}, {spec})".format(name=self.name, year=self.start_year, spec=self.speciality)
@@ -212,8 +224,8 @@ class TasksPool(FromToDict):
 
     def create_test(self, tasks_num, student):
         """
-        Create new assessmetn
-        :param tasks_num: the number of the tasks in newly creating assessment
+        Create new assessment
+        :param tasks_num: the number of the tasks in the newly creating assessment
         :param student: a student the assessment is creating for
         :return: new assessment from tasks pool for the given student
         """
@@ -343,24 +355,3 @@ class Assessment(FromToDict):
 
     def to_dict(self):
         pass
-
-
-class TestingStudent:
-    """A student-test combination being tested.
-    Contains a beautifulsoup xml description of the test and the student object.
-    """
-
-    def __init__(self):
-        """Create a new empty student-test combination."""
-        self.test_bs = None
-        self.student = None
-
-    def __init__(self, student, test_bs):
-        """Create a new empty student-test combination.
-
-        Keyword arguments:
-        student - a new-joined student.
-        test_bs - beautyfulsoup description of the test
-        """
-        self.test_bs = test_bs
-        self.student = student
