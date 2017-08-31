@@ -276,7 +276,8 @@ class TasksPool(FromToDict):
 
         assessments_num = 10000
 
-        while True:
+        attempts_num = 0
+        while attempts_num < 5:
             assessments = []
             for i in range(assessments_num):
                 assessments.append(assesst(items_num=len(tasks), assesst_props=descr, choice=True))
@@ -308,6 +309,8 @@ class TasksPool(FromToDict):
             new_assessment.threshold = values[-(index + 1)] * 100
             if index != 0 and step_found:
                 break
+
+            attempts_num += 1
 
         return new_assessment
 
