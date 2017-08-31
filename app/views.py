@@ -6,6 +6,7 @@ from assessment_estimation.subjects import *
 import uuid
 import json
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -63,4 +64,3 @@ def login():
         return redirect('/index')
 
     return render_template("login.html", title="Вход в систему", form=form, providers=app.config['OPENID_PROVIDERS'])
-

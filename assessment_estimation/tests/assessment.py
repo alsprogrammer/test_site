@@ -29,7 +29,9 @@ class Test(unittest.TestCase):
         assessment.get_score(answers)
 
         self.assertEqual(len(assessment.mistaken_tasks), tasks_num)
-        self.assertTrue(assessment.mistaken_uuids.issubset(assessment.distractors_uuids.union(assessment.answers_uuids)) and assessment.distractors_uuids.union(assessment.answers_uuids).issubset(assessment.mistaken_uuids), 0)
+        self.assertTrue(assessment.mistaken_uuids.issubset(assessment.distractors_uuids.union(assessment.answers_uuids))
+                        and assessment.distractors_uuids.union(assessment.answers_uuids).
+                        issubset(assessment.mistaken_uuids), 0)
 
 
 if __name__ == "__main__":
