@@ -1,5 +1,13 @@
-flask
-bs4
+Babel==2.3.4
+Flask==0.12
+Flask-Login==0.4.0
+Flask-OpenID==1.2.5
+Flask-WTF==0.14.2
+WTForms
+beautifulsoup4
+bs4==0.0.1
 numpy
-pathlib
-selenium
+pathlib==1.0.1
+selenium==3.5.0
+lxml
+

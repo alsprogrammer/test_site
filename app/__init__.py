@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from flask_openid import OpenID
 from config import basedir
 from pathlib import Path
-import uuid
 from assessment_estimation.subjects import Group
 import json
 
@@ -26,12 +25,12 @@ from app import views, models
 folder = Path(app.config['DATA_PATH'])
 files_with_maps = folder.glob('*.gjsn')
 
-for file in files_with_maps:
-    group_file = open(file, encoding='utf-8')
+for cur_file in files_with_maps:
+    group_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r")
     group_text = group_file.read()
     group_file.close()
     group_json = json.loads(group_text)
 
-    new_group = Group()
+    new_group = Group(group_json["spec"], group_json["year"], group_json["name"])
     new_group.from_dict(group_json)
-    groups_to_test.update({"uuid": uuid.uuid4().hex, "group": new_group})
+    groups_to_test.update({"uuid": cur_file.name[:-5], "group": new_group})

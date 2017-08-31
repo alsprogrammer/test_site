@@ -19,7 +19,7 @@ class FromToDict():
         """
 
     @abstractmethod
-    def from_dict(self):
+    def from_dict(self, descr):
         """
         Load an object from its json desciprtion
         :return: None
@@ -50,14 +50,17 @@ class Student(FromToDict):
         self.last_name = last_name
         self.group = group
 
-    def from_dict(self):
-        pass
+    def from_dict(self, descr):
+        self.last_name = descr["last_name"]
+        self.first_name = descr["first_name"]
+        self.sur_name = descr["surname"]
+        self.group = descr["group_name"]
 
     def to_dict(self):
-        pass
+        return {"last_name": self.last_name, "first_name": self.first_name, "surname": self.sur_name, "group_name": self.group.name}
 
     def __repr__(self):
-        return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.last_name, gname=self.group)
+        return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.first_name, gname=self.group.name)
 
 
 class Group(FromToDict):
@@ -93,11 +96,16 @@ class Group(FromToDict):
         self.students.append(student)
         student.group = self
 
-    def from_dict(self):
-        pass
+    def from_dict(self, descr):
+        self.speciality = descr["spec"]
+        self.start_year = descr["year"]
+        self.name = descr["name"]
+        students = [Student(cur_stud["last_name"], first_name=cur_stud["first_name"], sur_name=cur_stud["surname"], group=self) for cur_stud in descr["students"]]
+        self.students = students
 
     def to_dict(self):
-        pass
+        students = [cur_stud.to_dict() for cur_stud in self.students]
+        return {"name": self.name, "spec": self.speciality, "year": self.start_year, "students": students}
 
     def __repr__(self):
         return "{name} ({year}, {spec})".format(name=self.name, year=self.start_year, spec=self.speciality)
@@ -176,6 +184,7 @@ class TasksPool(FromToDict):
 
     def __init__(self):
         self.threshold = 0.05
+        self.name = ""
         self.tasks = []
 
     def __init__(self, tasks_list):
@@ -184,6 +193,7 @@ class TasksPool(FromToDict):
         :param tasks_list: a list of tasks to add
         """
         self.threshold = 0.05
+        self.name = ""
         self.tasks = copy.copy(tasks_list)
 
     def __init__(self, assessment_desciption):
@@ -192,12 +202,17 @@ class TasksPool(FromToDict):
         :param assessment_desciption: a xml to create tasks pool from
         """
         self.threshold = 0.05
+        self.name = ""
         self.tasks = []
-        xml_file = open(assessment_desciption)
+        xml_file = open(assessment_desciption, encoding="utf-8")
         text = xml_file.readlines()
         xml_file.close()
 
-        for task in BeautifulSoup(" ".join(text), "xml").findAll("Question"):
+        soup = BeautifulSoup(" ".join(text), "xml")
+
+        self.name = soup.findAll("Test")[0].attrs["name"]
+
+        for task in soup.findAll("Question"):
             new_task = Task()
             new_task.theme = task.attrs["theme"]
             for child in task.children:
@@ -301,6 +316,9 @@ class TasksPool(FromToDict):
 
     def from_dict(self):
         pass
+
+    def __repr__(self):
+        return "{name} ({qnum})".format(name=self.name, qnum=len(self.tasks))
 
 
 class Assessment(FromToDict):
