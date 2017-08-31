@@ -2,3 +2,4 @@ flask
 bs4
 numpy
 pathlib
+selenium
