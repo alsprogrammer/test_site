@@ -8,7 +8,7 @@ from .func_libs import assesst
 import numpy as np
 
 
-class FromToDict():
+class FromToDict:
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -29,14 +29,7 @@ class FromToDict():
 class Student(FromToDict):
     """The student class. Describes the student's name and group"""
 
-    def __init__(self):
-        """Create new student with no name and group"""
-        self.first_name = ""
-        self.sur_name = ""
-        self.last_name = ""
-        self.group = None
-
-    def __init__(self, last_name, first_name="", sur_name="", group=None):
+    def __init__(self, last_name="", first_name="", sur_name="", group=None):
         """Create a new student.
 
         Keyword arguments:
@@ -57,7 +50,8 @@ class Student(FromToDict):
         self.group = descr["group_name"]
 
     def to_dict(self):
-        return {"last_name": self.last_name, "first_name": self.first_name, "surname": self.sur_name, "group_name": self.group.name}
+        return {"last_name": self.last_name, "first_name": self.first_name, "surname": self.sur_name,
+                "group_name": self.group.name}
 
     def __repr__(self):
         return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.first_name, gname=self.group.name)
@@ -65,14 +59,6 @@ class Student(FromToDict):
 
 class Group(FromToDict):
     """The group class. Describes the group and its students"""
-
-    def __init__(self):
-        # type: () -> object
-        """Create new group with no name, speciality, start year and the empty list of the students"""
-        self.speciality = ""
-        self.start_year = -1;
-        self.name = ""
-        self.students = []
 
     def __init__(self, speciality, year, name):
         """Create a new group.
@@ -100,7 +86,8 @@ class Group(FromToDict):
         self.speciality = descr["spec"]
         self.start_year = descr["year"]
         self.name = descr["name"]
-        students = [Student(cur_stud["last_name"], first_name=cur_stud["first_name"], sur_name=cur_stud["surname"], group=self) for cur_stud in descr["students"]]
+        students = [Student(cur_stud["last_name"], first_name=cur_stud["first_name"], sur_name=cur_stud["surname"],
+                            group=self) for cur_stud in descr["students"]]
         self.students = students
 
     def to_dict(self):
@@ -113,13 +100,6 @@ class Group(FromToDict):
 
 class Task(FromToDict):
     """Describes single task in an assessment"""
-    def __init__(self):
-        self.theme = ""
-        self.stem = ""
-        self.picture = None
-        self.answers = []
-        self.distractors = []
-
     def __init__(self, stem="", theme=None, picture=None):
         self.theme = theme
         self.stem = stem
@@ -149,7 +129,7 @@ class Task(FromToDict):
         else:
             raise TypeError()
 
-    def from_dict(self):
+    def from_dict(self, descr):
         pass
 
     def to_dict(self):
@@ -161,15 +141,11 @@ class Task(FromToDict):
 
 class TaskOption(FromToDict):
     """Single task element - answer or distractor"""
-    def __init__(self):
-        self.text = ""
-        self.picture = None
-
     def __init__(self, text="", picture=None):
         self.text = text
         self.picture = picture
 
-    def from_dict(self):
+    def from_dict(self, descr):
         pass
 
     def to_dict(self):
@@ -182,21 +158,7 @@ class TaskOption(FromToDict):
 class TasksPool(FromToDict):
     """A set of tasks to choose the tasks for a particular assessment from"""
 
-    def __init__(self):
-        self.threshold = 0.05
-        self.name = ""
-        self.tasks = []
-
-    def __init__(self, tasks_list):
-        """
-        Create tasks pool
-        :param tasks_list: a list of tasks to add
-        """
-        self.threshold = 0.05
-        self.name = ""
-        self.tasks = copy.copy(tasks_list)
-
-    def __init__(self, assessment_desciption):
+    def __init__(self, assessment_desciption=None):
         """
         Create a new task pool from xml
         :param assessment_desciption: a xml to create tasks pool from
@@ -204,6 +166,10 @@ class TasksPool(FromToDict):
         self.threshold = 0.05
         self.name = ""
         self.tasks = []
+
+        if not assessment_desciption:
+            return
+
         xml_file = open(assessment_desciption, encoding="utf-8")
         text = xml_file.readlines()
         xml_file.close()
@@ -237,7 +203,7 @@ class TasksPool(FromToDict):
 
             self.tasks.append(new_task)
 
-    def create_test(self, tasks_num, student):
+    def create_test(self, tasks_num, student=None):
         """
         Create new assessment
         :param tasks_num: the number of the tasks in the newly creating assessment
@@ -245,12 +211,14 @@ class TasksPool(FromToDict):
         :return: new assessment from tasks pool for the given student
         """
         if tasks_num <= 0:
-            raise ValueError("Wrong number of the tasks in the assessment: the number of tasks can't be zero or negative")
+            raise ValueError("Wrong number of the tasks in the assessment: \
+            the number of tasks can't be zero or negative")
 
         if tasks_num > len(self.tasks):
             raise ValueError("Wrong number of the tasks in the assessment: greater than tasks in task pool")
 
         new_assessment = Assessment()
+        new_assessment.student = student
         tasks = random.sample(self.tasks, tasks_num)
         random.shuffle(tasks)
 
@@ -291,18 +259,18 @@ class TasksPool(FromToDict):
 
             hist = list(hist / float(hist_sum))
 
-            sum = 0
+            elem_sum = 0
             index = 0
             hist.reverse()
 
             step_found = True
             for i, elem in enumerate(hist):
-                sum += elem
+                elem_sum += elem
                 if hist[i] >= hist[i + 1]:
                     step_found = False
                     break
 
-                if sum > self.threshold:
+                if elem_sum > self.threshold:
                     index = i
                     break
 
@@ -317,7 +285,7 @@ class TasksPool(FromToDict):
     def to_dict(self):
         pass
 
-    def from_dict(self):
+    def from_dict(self, descr):
         pass
 
     def __repr__(self):
@@ -358,10 +326,12 @@ class Assessment(FromToDict):
         all_options = self.answers_uuids.union(self.distractors_uuids)
         not_checked = all_options.difference(answers)
 
-        score = float(len(self.answers_uuids & answers) + len(self.distractors_uuids & not_checked)) / float(len(all_options)) * 100.0
+        score = float(len(self.answers_uuids & answers) + len(self.distractors_uuids & not_checked)) / \
+                float(len(all_options)) * 100.0
         real_score = (score - self.threshold) / (100 - self.threshold) * 100.0
 
-        self.mistaken_uuids = self.distractors_uuids.intersection(self.checked_uuids).union(self.answers_uuids.difference(self.checked_uuids))
+        self.mistaken_uuids = self.distractors_uuids.intersection(self.checked_uuids).\
+            union(self.answers_uuids.difference(self.checked_uuids))
 
         for cur_mistake in self.mistaken_uuids:
             for cur_task in self.tasks:
@@ -371,7 +341,7 @@ class Assessment(FromToDict):
 
         return real_score if real_score > 0 else 0, self.threshold, score
 
-    def from_dict(self):
+    def from_dict(self, descr):
         pass
 
     def to_dict(self):
