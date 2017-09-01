@@ -5,11 +5,11 @@ from selenium.webdriver.common.keys import Keys
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(executable_path='f:\\Projects\\web\\geckodriver.exe')
 
     def test_group_create(self):
         driver = self.driver
-        driver.get("http://127.0.0.1:5000/admin/group/new")
+        driver.get("http://www.python.org")
         self.assertIn("Python", driver.title)
         elem = driver.find_element_by_name("q")
         elem.send_keys("pycon")
