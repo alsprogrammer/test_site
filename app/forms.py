@@ -12,10 +12,20 @@ class LoginForm(FlaskForm):
 class GroupForm(FlaskForm):
     """Form for entering the desciption of the new group"""
     # The name of the speciality the goup belongs to
-    speciality = StringField('Наименование специальности', validators=[DataRequired()])
+    speciality = StringField('Наименование специальности', validators=[DataRequired("Название специальности является обязательным")])
     # The year the group has started to study
-    start_year = StringField('Год начала обучения', validators=[DataRequired()])
+    start_year = StringField('Год начала обучения', validators=[DataRequired("Укажите год начала обучения")])
     # The name of the goup
-    name = StringField('Наименование группы', validators=[DataRequired()])
+    name = StringField('Наименование группы', validators=[DataRequired("Наименование группы является обязательным")])
     # The list of students' names if form one student in one line, the sequence is Lastname Firstname Surname
-    students_list = TextAreaField()
+    students_list = TextAreaField(validators=[DataRequired("В группе должен быть хотя бы один студент")])
+
+
+class StudentForm(FlaskForm):
+    """Form for entering the desciption of a student"""
+    # The name of the student
+    first_name = StringField('Имя')
+    # The surname of the student
+    sur_name = StringField('Отчество')
+    # The last name of the student
+    last_name = StringField('Фамилия', validators=[DataRequired("Наличие фамилии является обязательным")])

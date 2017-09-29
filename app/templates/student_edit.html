@@ -3,7 +3,7 @@
 {% block menu %} {% endblock %}
 
 {% block content %}
-    <h3>Добавление новой группы</h3>
+    <h3>Редактирование студента</h3>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -17,27 +17,21 @@
 
     <form action=""  method="post" name="login">
         {{ form.hidden_tag() }}
-        <p>Введите наименование специальности: {{ form.speciality(size=80) }}
+        <p>Имя: {{ form.first_name(size=40) }}
             {% for error in form.errors.speciality %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
-        <p>Введите наименование группы: {{ form.name(size=10) }}
+        <p>Отчество: {{ form.sur_name(size=40) }}
             {% for error in form.errors.name %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
-        <p>Введите год начала обучения: {{ form.start_year(size=4) }}
+        <p>Фамилия: {{ form.last_name(size=40) }}
             {% for error in form.errors.start_year %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
-        <p>Список группы:
-            {% for error in form.errors.students_list %}
-            <span style="color: red;">{{error}}</span>
-            {% endfor %}<br>
-        </p>
-        <p>{{ form.students_list(rows='20',cols='80') }}</p>
-        <p><input type="submit" value="Войти"></p>
+        <p><input type="submit" value="Сохранить"></p>
     </form>
 {% endblock %}

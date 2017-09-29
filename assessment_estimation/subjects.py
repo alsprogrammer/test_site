@@ -71,7 +71,7 @@ class Group(FromToDict):
         self.speciality = speciality
         self.start_year = year
         self.name = name
-        self.students = []
+        self.students = {}
 
     def add_student(self, student):
         """Add a new student.
@@ -79,19 +79,19 @@ class Group(FromToDict):
 
         student - the student to be added to the group
         """
-        self.students.append(student)
+        self.students.update({uuid.uuid4().hex: student})
         student.group = self
 
     def from_dict(self, descr):
         self.speciality = descr["spec"]
         self.start_year = descr["year"]
         self.name = descr["name"]
-        students = [Student(cur_stud["last_name"], first_name=cur_stud["first_name"], sur_name=cur_stud["surname"],
-                            group=self) for cur_stud in descr["students"]]
+        students = {cur_stud_uid: Student(descr["students"][cur_stud_uid]["last_name"], first_name=descr["students"][cur_stud_uid]["first_name"], sur_name=descr["students"][cur_stud_uid]["surname"],
+                            group=self) for cur_stud_uid in descr["students"]}
         self.students = students
 
     def to_dict(self):
-        students = [cur_stud.to_dict() for cur_stud in self.students]
+        students = {cur_stud_uid:self.students[cur_stud_uid].to_dict() for cur_stud_uid in self.students}
         return {"name": self.name, "spec": self.speciality, "year": self.start_year, "students": students}
 
     def __repr__(self):

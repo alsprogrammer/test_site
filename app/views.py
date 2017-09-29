@@ -1,52 +1,132 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from app import app, lm, oid, groups_to_test
 from .forms import *
-from .models import *
 from assessment_estimation.subjects import *
 import uuid
 import json
+import os
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/test')
 def index():
     """Show the first page of the testing system."""
     return render_template("index.html", title="Добро пожаловать!")
 
 
-@app.route('/admin/group/new', methods=['GET', 'POST'])
+@app.route('/test/admin/group/new', methods=['GET', 'POST'])
 def admin_group_new():
     """Add new group to the testing system.
-    The group xml file will be saved to the ... folder
+    The group json file will be saved to the folder specified in config
     """
+    err_message = ""
     form = GroupForm()
     if form.validate_on_submit():
-        group = Group(form.speciality.data, form.start_year.data, form.name.data)
-        for student_name in form.students_list.data.splitlines():
-            if student_name != "\n":
-                names = student_name.split(" ")
-                if len(names) >= 3:
-                    student = Student(names[0], names[1], names[2], group)
-                elif len(names) == 2:
-                    student = Student(names[0], first_name=names[1], group=group)
-                elif len(names) == 1:
-                    student = Student(names[0], group=group)
-                else:
-                    continue
-                group.add_student(student)
+        found = False
+        for group_uid in groups_to_test:
+            if groups_to_test[group_uid].name == form.name.data:
+                found = True
+                err_message = "Такая группа уже существует"
+                break
+        if not found:
+            group = Group(form.speciality.data, form.start_year.data, form.name.data)
+            for student_name in form.students_list.data.splitlines():
+                if student_name != "\n":
+                    names = student_name.split(" ")
+                    if len(names) >= 3:
+                        student = Student(names[0], names[1], names[2], group)
+                    elif len(names) == 2:
+                        student = Student(names[0], first_name=names[1], group=group)
+                    elif len(names) == 1:
+                        student = Student(names[0], group=group)
+                    else:
+                        continue
 
-        uu = uuid.uuid4().hex
-        groups_to_test.update({"uuid": uu, "group": group})
-        group_descr = json.dumps(group.to_dict(), ensure_ascii=False)
-        group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w")
-        group_file.write(group_descr)
-        group_file.flush()
-        group_file.close()
+                    group.add_student(student)
 
-        flash("Группа добавлена")
-        return redirect('/admin/group/list')
+            uu = uuid.uuid4().hex
+            groups_to_test.update({uu: group})
+            group_descr = json.dumps(group.to_dict(), ensure_ascii=False)
+            group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w")
+            group_file.write(group_descr)
+            group_file.flush()
+            group_file.close()
 
+            flash("Группа добавлена")
+            return redirect('/test/admin/group/list')
+
+    if err_message:
+        flash(err_message)
     return render_template("new_group.html", title="Добро пожаловать!", form=form)
+
+
+@app.route('/test/admin/group/list')
+def group_list():
+    """Show the test system description page before test starts"""
+    return render_template("group_list.html", groups=groups_to_test)
+
+
+@app.route('/test/admin/group/edit/<group_uid>')
+def group_edit(group_uid):
+    """Show the test system description page before test starts"""
+    if group_uid not in groups_to_test.keys():
+        flash("Такой группы не существует")
+        return redirect(url_for('group_list'))
+
+    return render_template("group_edit.html", group_uid=group_uid, group=groups_to_test[group_uid])
+
+
+@app.route('/test/admin/student/edit/<group_uid>/<student_uid>')
+def student_edit(group_uid, student_uid):
+    """Edit the given student"""
+    if group_uid not in groups_to_test.keys():
+        flash("Такой группы не существует")
+        return redirect(url_for('group_list'))
+
+    if student_uid not in groups_to_test[group_uid].students.keys():
+        flash("Такого студента не существует")
+        return redirect(url_for('group_list'))
+
+    group = groups_to_test[group_uid]
+    student = group.students[student_uid]
+    err_message = ""
+    form = StudentForm(first_name=student.first_name, sur_name=student.sur_name, last_name=student.last_name)
+    if form.validate_on_submit():
+        found = False
+        for group_uid in groups_to_test:
+            if groups_to_test[group_uid].name == form.name.data:
+                found = True
+                err_message = "Такая группа уже существует"
+                break
+        if not found:
+            group = Group(form.speciality.data, form.start_year.data, form.name.data)
+            for student_name in form.students_list.data.splitlines():
+                if student_name != "\n":
+                    names = student_name.split(" ")
+                    if len(names) >= 3:
+                        student = Student(names[0], names[1], names[2], group)
+                    elif len(names) == 2:
+                        student = Student(names[0], first_name=names[1], group=group)
+                    elif len(names) == 1:
+                        student = Student(names[0], group=group)
+                    else:
+                        continue
+
+                    group.add_student(student)
+
+            uu = uuid.uuid4().hex
+            groups_to_test.update({uu: group})
+            group_descr = json.dumps(group.to_dict(), ensure_ascii=False)
+            group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w")
+            group_file.write(group_descr)
+            group_file.flush()
+            group_file.close()
+
+            flash("Группа добавлена")
+            return redirect('/test/admin/group/list')
+
+    if err_message:
+        flash(err_message)
+    return render_template("student_edit.html", title="Добро пожаловать!", form=form)
 
 
 @app.route('/test/start')
