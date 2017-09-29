@@ -1,10 +1,15 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
+from werkzeug.utils import secure_filename
 from app import app, lm, oid, groups_to_test
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
 import json
 import os
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
 @app.route('/test')
@@ -114,14 +119,21 @@ def test_new():
     err_message = ""
     form = GroupForm()
     if form.validate_on_submit():
-        found = False
-        for group_uid in groups_to_test:
-            if groups_to_test[group_uid].name == form.name.data:
-                found = True
-                err_message = "Такая группа уже существует"
-                break
-        if not found:
-            group = Group(form.speciality.data, form.start_year.data, form.name.data)
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
 
 
 @app.route('/test/start')

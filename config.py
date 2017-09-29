@@ -4,6 +4,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 DATA_PATH = './tests/files/'
 
+UPLOAD_FOLDER = '/path/to/the/uploads'
+ALLOWED_EXTENSIONS = set(['xml'])
+
 CSRF_ENABLED = True
 SECRET_KEY = 'sjjhdu0938dffiuugkirrg1877rt'
 OPENID_PROVIDERS = [
