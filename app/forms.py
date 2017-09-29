@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, TextAreaField
+from wtforms import StringField, BooleanField, TextAreaField, IntegerField, FileField
 from wtforms.validators import DataRequired
 
 
@@ -29,3 +29,13 @@ class StudentForm(FlaskForm):
     sur_name = StringField('Отчество')
     # The last name of the student
     last_name = StringField('Фамилия', validators=[DataRequired("Наличие фамилии является обязательным")])
+
+
+class TestForm(FlaskForm):
+    """Form for the loading of an assessment"""
+    # The time for student to solve one task
+    task_test_time = IntegerField('Время на один вопрос, сек', validators=[DataRequired('Необходимо указать время, даваемое на один вопрос')])
+    # The number of tasks in an assessment
+    task_num = IntegerField('Количество заданий в тесте', validators=[DataRequired('Необходимо задать количество заданий в тесте')])
+    # The test file to download
+    file_name = FileField('Файл с тестом')

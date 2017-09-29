@@ -106,6 +106,24 @@ def student_edit(group_uid, student_uid):
     return render_template("student_edit.html", title="Добро пожаловать!", form=form)
 
 
+@app.route('/test/admin/test/new', methods=['GET', 'POST'])
+def test_new():
+    """Add new group to the testing system.
+    The group json file will be saved to the folder specified in config
+    """
+    err_message = ""
+    form = GroupForm()
+    if form.validate_on_submit():
+        found = False
+        for group_uid in groups_to_test:
+            if groups_to_test[group_uid].name == form.name.data:
+                found = True
+                err_message = "Такая группа уже существует"
+                break
+        if not found:
+            group = Group(form.speciality.data, form.start_year.data, form.name.data)
+
+
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
