@@ -75,7 +75,7 @@ def group_edit(group_uid):
     return render_template("group_edit.html", group_uid=group_uid, group=groups_to_test[group_uid])
 
 
-@app.route('/test/admin/student/edit/<group_uid>/<student_uid>')
+@app.route('/test/admin/student/edit/<group_uid>/<student_uid>', methods=['GET', 'POST'])
 def student_edit(group_uid, student_uid):
     """Edit the given student"""
     if group_uid not in groups_to_test.keys():
@@ -95,13 +95,13 @@ def student_edit(group_uid, student_uid):
         groups_to_test[group_uid].students[student_uid].sur_name = form.sur_name.data
 
         group_descr = json.dumps(groups_to_test[group_uid].to_dict(), ensure_ascii=False)
-        group_file = open(os.path.join(app.config["DATA_PATH"], group_uid + ".gjsn"), mode="wo")
+        group_file = open(os.path.join(app.config["DATA_PATH"], group_uid + ".gjsn"), mode="w+")
         group_file.write(group_descr)
         group_file.flush()
         group_file.close()
 
         flash("Студент изменен")
-        return redirect(url_for('group_list'))
+        return redirect(url_for('group_edit', group_uid=group_uid))
 
     return render_template("student_edit.html", title="Добро пожаловать!", form=form)
 
