@@ -18,17 +18,17 @@
     <form action=""  method="post" name="login">
         {{ form.hidden_tag() }}
         <p>Имя: {{ form.first_name(size=40) }}
-            {% for error in form.errors.speciality %}
+            {% for error in form.errors.first_name %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
         <p>Отчество: {{ form.sur_name(size=40) }}
-            {% for error in form.errors.name %}
+            {% for error in form.errors.sur_name %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
         <p>Фамилия: {{ form.last_name(size=40) }}
-            {% for error in form.errors.start_year %}
+            {% for error in form.errors.last_name %}
             <span style="color: red;">{{error}}</span>
             {% endfor %}<br>
         </p>
