@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test
+from app import app, lm, oid, groups_to_test, tasksets
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
@@ -117,23 +117,34 @@ def test_new():
     The group json file will be saved to the folder specified in config
     """
     err_message = ""
-    form = GroupForm()
+    form = TestForm()
     if form.validate_on_submit():
         # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
+        filename = os.path.join(app.config["DATA_PATH"], secure_filename(form.file.data.filename))
+        form.file.data.save(filename)
+
+        testset = TasksPool(assessment_desciption=filename)
+        testset.time_per_task = form.task_test_time.data
+        testset.tasks_num = form.task_num.data
+        uid = uuid.uuid4().hex
+        tasksets.update({uid: testset})
+
+        with open(os.path.join(app.config["DATA_PATH"], uid + '.tjsn'), 'w', encoding='utf-8') as tasksetfile:
+            test_descr = json.dumps(testset.to_dict(), ensure_ascii=False)
+            tasksetfile.write(test_descr)
+            tasksetfile.flush()
+
+        os.remove(filename)
+
+        return redirect(url_for('test_list'))
+
+    return render_template("test_new.html", title="Добро пожаловать!", form=form)
+
+
+@app.route('/test/admin/test/list')
+def test_list():
+    """Show the test system description page before test starts"""
+    return render_template("test_list.html", tests=tasksets)
 
 
 @app.route('/test/start')

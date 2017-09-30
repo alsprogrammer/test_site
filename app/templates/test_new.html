@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block userscripts %}  {% endblock %}
+{% block menu %} {% endblock %}
+
+{% block content %}
+    <h3>Добавление нового теста в систему</h3>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li>{{ message }} </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form action=""  method="post" name="login" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>Время на одну задачу теста: {{ form.task_test_time(size=40) }}
+            {% for error in form.errors.task_test_time %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}<br>
+        </p>
+        <p>Количество заданий в тесте: {{ form.task_num(size=40) }}
+            {% for error in form.errors.task_num %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}<br>
+        </p>
+        <p>Файл теста: {{ form.file }}
+            {% for error in form.errors.file %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}<br>
+        </p>
+        <p><input type="submit" value="Создать"></p>
+    </form>
+
+
+{% endblock %}

@@ -38,4 +38,4 @@ class TestForm(FlaskForm):
     # The number of tasks in an assessment
     task_num = IntegerField('Количество заданий в тесте', validators=[DataRequired('Необходимо задать количество заданий в тесте')])
     # The test file to download
-    file_name = FileField('Файл с тестом')
+    file = FileField('Файл с тестом')

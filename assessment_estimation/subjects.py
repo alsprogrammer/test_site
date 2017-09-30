@@ -189,6 +189,7 @@ class TasksPool(FromToDict):
         self.name = ""
         self.time_per_task = 60
         self.tasks = []
+        self.tasks_num = 12
 
         if not assessment_desciption:
             return
