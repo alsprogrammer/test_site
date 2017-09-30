@@ -89,7 +89,7 @@ def student_edit(group_uid, student_uid):
 
     if student_uid not in groups_to_test[group_uid].students.keys():
         flash("Такого студента не существует")
-        return redirect(url_for('group_list'))
+        return redirect(url_for('group_edit', group_uid=group_uid))
 
     group = groups_to_test[group_uid]
     student = group.students[student_uid]

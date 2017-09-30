@@ -165,6 +165,7 @@ class TasksPool(FromToDict):
         """
         self.threshold = 0.05
         self.name = ""
+        self.time_per_task = 60
         self.tasks = []
 
         if not assessment_desciption:
@@ -283,10 +284,22 @@ class TasksPool(FromToDict):
         return new_assessment
 
     def to_dict(self):
-        pass
+        dict_to_export = {}
+        dict_to_export.update({'name': self.name, 'time_per_task': self.time_per_task, 'threshold': self.threshold})
+        tasks = [cur_task.to_dict() for cur_task in self.tasks]
+        dict_to_export.update({'tasks': tasks})
+
+        return dict_to_export
 
     def from_dict(self, descr):
-        pass
+        self.name = descr['name']
+        self.time_per_task = descr['time_per_task']
+        self.threshold = descr['threshold']
+        self.tasks = []
+        for cur_task_descr in descr['tasks']:
+            new_task = Task()
+            new_task.from_dict(cur_task_descr)
+            self.tasks.append(new_task)
 
     def __repr__(self):
         return "{name} ({qnum})".format(name=self.name, qnum=len(self.tasks))
