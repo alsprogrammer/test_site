@@ -242,6 +242,7 @@ class TasksPool(FromToDict):
             raise ValueError("Wrong number of the tasks in the assessment: greater than tasks in task pool")
 
         new_assessment = Assessment()
+        new_assessment.name = self.name
         new_assessment.student = student
         tasks = random.sample(self.tasks, tasks_num)
         random.shuffle(tasks)
@@ -338,6 +339,7 @@ class Assessment(FromToDict):
         self.created = datetime.datetime.now()
         self.started = None
         self.ended = None
+        self.name = ""
         self.answer_times = []
         self.student = student  # the student to be tested
         self.answers_uuids = set([])  # a list of answers UUIDs

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, TextAreaField, IntegerField, FileField
+from wtforms import StringField, BooleanField, TextAreaField, IntegerField, FileField, SelectField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired
 
 
@@ -39,3 +39,12 @@ class TestForm(FlaskForm):
     task_num = IntegerField('Количество заданий в тесте', validators=[DataRequired('Необходимо задать количество заданий в тесте')])
     # The test file to download
     file = FileField('Файл с тестом')
+
+
+class AllowTestForm(FlaskForm):
+    """Form for the allowing to pass an assessment for student"""
+    # The assessment for student to pass
+    assessment = SelectField('Тест')
+    # The students list for assessment to pass
+    students = SelectMultipleField('Студенты', option_widget=widgets.CheckboxInput(),
+                                   widget=widgets.ListWidget(prefix_label=False))

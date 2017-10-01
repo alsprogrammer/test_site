@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test, tasksets
+from app import app, lm, oid, groups_to_test, tasksets, passing, passed, students_ready_to_test
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
@@ -147,10 +147,59 @@ def test_list():
     return render_template("test_list.html", tests=tasksets)
 
 
+@app.route('/test/admin/test/allow', methods=['GET', 'POST'])
+def allow_to_test():
+    """Allows students to pass an assessment"""
+    form = AllowTestForm()
+    form.assessment.choices = [(cur_assessment, tasksets[cur_assessment].name) for cur_assessment in tasksets]
+    students = []
+    for cur_group in groups_to_test:
+        for cur_student in groups_to_test[cur_group].students:
+            students.append((cur_group + '.' + cur_student, groups_to_test[cur_group].students[cur_student].__repr__()))
+    form.students.choices = students
+    if form.validate_on_submit():
+        if form.assessment.data not in tasksets.keys():
+            flash("Нет такого теста")
+            return redirect(url_for('test_list'))
+
+        taskset = tasksets[form.assessment.data]
+
+        for cur_student in form.students.data:
+            student_data = cur_student.split('.')
+            group_uuid = student_data[0]
+            student_uuid = student_data[1]
+            if group_uuid not in groups_to_test.keys():
+                flash("Нет такой группы")
+                return redirect(url_for('group_list'))
+
+            if student_uuid not in groups_to_test[student_data[0]].students.keys():
+                flash("Нет такого студента")
+                return redirect(url_for('test_list'))
+
+            assessment = taskset.create_test(taskset.tasks_num, student=groups_to_test[group_uuid].students[student_uuid])
+            students_ready_to_test.update({uuid.uuid4().hex: assessment})
+
+        return redirect(url_for('test_passing'))
+
+    return render_template("test_allow.html", title="Добро пожаловать!", form=form)
+
+
+@app.route('/test/admin/passing')
+def test_passing():
+    """Show the test system description page before test starts"""
+    return render_template("test_passing.html", passing=passing)
+
+
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
-    return render_template("test.html", title="Добро пожаловать!")
+    return render_template("test.html", title="Добро пожаловать!", list=students_ready_to_test)
+
+
+@app.route('/test/pass/<assessment_uuid>')
+def test_pass(assessment_uuid):
+    """Show the test system description page before test starts"""
+    return render_template("test.html", title="Добро пожаловать!", list=students_ready_to_test)
 
 
 @app.route('/login/', methods=['GET', 'POST'])

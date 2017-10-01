@@ -16,9 +16,10 @@
     {% endwith %}
 
     <table width="100%">
-        {% for cur_passing in list %}
+        {% for cur_passing in passing %}
         <tr>
-            <td><a href="{{ url_for('test_pass', assessment_uuid=cur_passing)}}">{{ list[cur_passing].student.__repr__() }}({{ list[cur_passing].name }})</a></td>
+            <td>{{ passing[cur_passing].student.name }}</td>
+            <td>{{ passing[cur_passing].started }}</td>
         </tr>
         {% endfor %}
     </table>
