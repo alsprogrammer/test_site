@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block userscripts %}  {% endblock %}
+{% block menu %} {% endblock %}
+
+{% block content %}
+    <h3>Результаты тестирования</h3>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li>{{ message }} </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <table width="100%">
+        <tr>
+            <td>{{ assessment.student.__repr__() }}</td>
+            <td>{{ 'Балл {:.2f} ({:.2f}% правильных ответов)'.format(assessment.real_score, assessment.score) }}</td>
+            <td>
+                {% for cur_task in assessment.mistaken_tasks %}
+                    {{ cur_task.stem }}
+                    <br /><br />
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+
+
+{% endblock %}

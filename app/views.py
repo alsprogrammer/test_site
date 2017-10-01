@@ -199,15 +199,42 @@ def test_start():
 @app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
 def test_pass(assessment_uuid):
     """Show the test system description page before test starts"""
-    if assessment_uuid not in ready_to_test.keys():
+    if request.method == 'GET':
+        if assessment_uuid not in ready_to_test.keys():
+            flash("Нет такого теста")
+            return redirect(url_for('allow_to_test'))
+
+        cur_assessment = ready_to_test[assessment_uuid]
+        cur_assessment.started = datetime.datetime.now()
+        del ready_to_test[assessment_uuid]
+        passing.update({assessment_uuid: cur_assessment})
+
+        return render_template("test_site.html", title="Добро пожаловать!", assessment_uid=assessment_uuid, assessment=cur_assessment)
+
+    elif request.method == 'POST':
+        if assessment_uuid not in passing.keys():
+            flash("Нет такого теста")
+            return redirect(url_for('allow_to_test'))
+
+        assessment = passing[assessment_uuid]
+        results = request.form
+
+        assessment.get_score(set(results))
+
+        del passing[assessment_uuid]
+        passed.update({assessment_uuid: assessment})
+        return redirect(url_for('show_result', assessment_uid=assessment_uuid))
+
+
+@app.route('/test/showresult/<assessment_uid>')
+def show_result(assessment_uid):
+    """Show the result of the test"""
+    if assessment_uid not in passed.keys():
         flash("Нет такого теста")
-        return redirect(url_for('allow_to_test'))
+        return redirect(url_for('index'))
 
-    cur_assessment = ready_to_test[assessment_uuid]
-    del ready_to_test[assessment_uuid]
-    passing.update({assessment_uuid: cur_assessment})
-
-    return render_template("test_site.html", title="Добро пожаловать!", assessment_uid=assessment_uuid, assessment=cur_assessment)
+    assessment = passed[assessment_uid]
+    return render_template("result.html", assessment=assessment)
 
 
 @app.route('/login/', methods=['GET', 'POST'])

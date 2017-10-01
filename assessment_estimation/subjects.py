@@ -349,6 +349,8 @@ class Assessment(FromToDict):
         self.checked_uuids = set([])
         self.mistaken_uuids = set([])
         self.mistaken_tasks = []
+        self.score = 0
+        self.real_score = 0
 
     def get_score(self, answers):
         """
@@ -364,9 +366,12 @@ class Assessment(FromToDict):
         all_options = self.answers_uuids.union(self.distractors_uuids)
         not_checked = all_options.difference(answers)
 
-        score = float(len(self.answers_uuids & answers) + len(self.distractors_uuids & not_checked)) / \
+        self.score = float(len(self.answers_uuids & answers) + len(self.distractors_uuids & not_checked)) / \
                 float(len(all_options)) * 100.0
-        real_score = (score - self.threshold) / (100 - self.threshold) * 100.0
+        self.real_score = (self.score - self.threshold) / (100 - self.threshold) * 100.0
+        self.real_score = self.real_score if self.real_score > 0 else 0
+
+        self.checked_uuids = answers
 
         self.mistaken_uuids = self.distractors_uuids.intersection(self.checked_uuids).\
             union(self.answers_uuids.difference(self.checked_uuids))
@@ -377,7 +382,7 @@ class Assessment(FromToDict):
                     if cur_task not in self.mistaken_tasks:
                         self.mistaken_tasks.append(cur_task)
 
-        return real_score if real_score > 0 else 0, self.threshold, score
+        return self.real_score, self.threshold, self.score
 
     def from_dict(self, descr):
         pass
