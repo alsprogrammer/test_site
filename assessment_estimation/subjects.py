@@ -388,4 +388,12 @@ class Assessment(FromToDict):
         pass
 
     def to_dict(self):
-        pass
+        dict_to_export = {}
+        dict_to_export.update({'created': self.created.strftime("%Y-%m-%d %H:%M:%S"),
+                               'started': self.started.strftime("%Y-%m-%d %H:%M:%S"),
+                               'ended': self.ended.strftime("%Y-%m-%d %H:%M:%S"),
+                               'student': self.student.to_dict(), 'score': self.score, 'real_score': self.real_score,
+                               'answers': list(self.answers_uuids), 'distractors': list(self.distractors_uuids),
+                               'tasks': self.tasks, 'threshold': self.threshold,
+                               'checked': list(self.checked_uuids), 'mistaken': list(self.mistaken_uuids)})
+        return dict_to_export

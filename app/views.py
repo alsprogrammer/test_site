@@ -217,12 +217,18 @@ def test_pass(assessment_uuid):
             return redirect(url_for('allow_to_test'))
 
         assessment = passing[assessment_uuid]
+        assessment.ended = datetime.datetime.now()
         results = request.form
 
         assessment.get_score(set(results))
 
         del passing[assessment_uuid]
         passed.update({assessment_uuid: assessment})
+
+        with open(os.path.join(app.config["DATA_PATH"], assessment_uuid + '.rjsn'), 'w', encoding='utf-8') as result_file:
+            res_descr = json.dumps(assessment.to_dict(), ensure_ascii=False)
+            result_file.write(res_descr)
+            result_file.flush()
         return redirect(url_for('show_result', assessment_uid=assessment_uuid))
 
 
