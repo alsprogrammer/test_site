@@ -243,6 +243,7 @@ class TasksPool(FromToDict):
 
         new_assessment = Assessment()
         new_assessment.name = self.name
+        new_assessment.time_limit = self.tasks_num * self.time_per_task
         new_assessment.student = student
         tasks = random.sample(self.tasks, tasks_num)
         random.shuffle(tasks)
@@ -339,6 +340,7 @@ class Assessment(FromToDict):
         self.created = datetime.datetime.now()
         self.started = None
         self.ended = None
+        self.time_limit = 0
         self.name = ""
         self.answer_times = []
         self.student = student  # the student to be tested
