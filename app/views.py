@@ -196,6 +196,12 @@ def test_start():
     return render_template("test.html", title="Добро пожаловать!", list=ready_to_test)
 
 
+@app.route('/test/admin/statistics')
+def statistics():
+    """Show the test system description page before test starts"""
+    return render_template("statistics.html", passed=passed)
+
+
 @app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
 def test_pass(assessment_uuid):
     """Show the test system description page before test starts"""

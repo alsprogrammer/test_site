@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "admin.html" %}
 {% block userscripts %}  {% endblock %}
 {% block menu %} {% endblock %}
 
@@ -18,7 +18,7 @@
     <table width="100%">
         {% for cur_passing in passing %}
         <tr>
-            <td>{{ passing[cur_passing].student.name }}</td>
+            <td>{{ passing[cur_passing].student.__repr__() }}</td>
             <td>{{ passing[cur_passing].started }}</td>
         </tr>
         {% endfor %}
