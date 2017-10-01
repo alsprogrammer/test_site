@@ -16,8 +16,8 @@ lm.init_app(app)
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 
 groups_to_test = {}  # groups to test at the moment
-students_ready_to_test = {}  #
-tasksets = {}
+ready_to_test = {}  # the not started yet assessments (but given for the students)
+tasksets = {}  # the test ready to be used to generate assessments
 passing = {}  # the dict of the assessments that are passing at the moment
 passed = {}  # the dict of the passed assessments
 
@@ -26,6 +26,7 @@ from assessment_estimation.subjects import *
 
 folder = Path(app.config['DATA_PATH'])
 
+# loading groups
 files_with_maps = folder.glob('*.gjsn')
 for cur_file in files_with_maps:
     group_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r")
@@ -37,6 +38,7 @@ for cur_file in files_with_maps:
     new_group.from_dict(group_json)
     groups_to_test.update({cur_file.name[:-5]: new_group})
 
+# loading tests
 test_files = folder.glob('*.tjsn')
 for cur_file in test_files:
     test_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r", encoding='utf-8')

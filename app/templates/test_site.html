@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block userscripts %}  {% endblock %}
+{% block menu %} {% endblock %}
+
+{% block content %}
+    <h3>Тест</h3>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li>{{ message }} </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('test_pass', assessment_uuid=assessment_uid) }}"  method="post" name="login">
+        {% for cur_task in assessment.tasks %}
+            <table width="80%" border="1" cellpadding="5" cellspacing="5" bordercolor="#333333">
+                <tr>
+                    <td colspan="2">
+                        {{ cur_task['stem'] }}
+                        {% if cur_task['picture'] %}
+                            <br /><img src="{{ 'data:image/png;base64, {picture_code}'.format(picture_code=cur_task['picture']) }}">
+                        {% endif %}
+                    </td>
+                </tr>
+                {% for cur_option in cur_task['options'] %}
+                    <tr>
+                        <td width="20%">&nbsp;</td>
+                        <td>
+                            <p><input type="checkbox" name="{{ cur_option['uuid'] }}">{{ cur_option['text'] }}</p>
+                            {% if cur_option['picture'] %}
+                                <br /><img src="{{ 'data:image/png;base64, {picture_code}'.format(picture_code=cur_option['picture']) }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <br />
+        {% endfor %}
+
+        <p><input type="submit" value="Ответить"></p>
+    </form>
+{% endblock %}

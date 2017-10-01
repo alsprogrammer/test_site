@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test, tasksets, passing, passed, students_ready_to_test
+from app import app, lm, oid, groups_to_test, tasksets, passing, passed, ready_to_test
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
@@ -177,7 +177,7 @@ def allow_to_test():
                 return redirect(url_for('test_list'))
 
             assessment = taskset.create_test(taskset.tasks_num, student=groups_to_test[group_uuid].students[student_uuid])
-            students_ready_to_test.update({uuid.uuid4().hex: assessment})
+            ready_to_test.update({uuid.uuid4().hex: assessment})
 
         return redirect(url_for('test_passing'))
 
@@ -193,13 +193,21 @@ def test_passing():
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
-    return render_template("test.html", title="Добро пожаловать!", list=students_ready_to_test)
+    return render_template("test.html", title="Добро пожаловать!", list=ready_to_test)
 
 
-@app.route('/test/pass/<assessment_uuid>')
+@app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
 def test_pass(assessment_uuid):
     """Show the test system description page before test starts"""
-    return render_template("test.html", title="Добро пожаловать!", list=students_ready_to_test)
+    if assessment_uuid not in ready_to_test.keys():
+        flash("Нет такого теста")
+        return redirect(url_for('allow_to_test'))
+
+    cur_assessment = ready_to_test[assessment_uuid]
+    del ready_to_test[assessment_uuid]
+    passing.update({assessment_uuid: cur_assessment})
+
+    return render_template("test_site.html", title="Добро пожаловать!", assessment_uid=assessment_uuid, assessment=cur_assessment)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
