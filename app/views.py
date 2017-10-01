@@ -12,12 +12,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
-@app.route('/test')
-def index():
-    """Show the first page of the testing system."""
-    return render_template("index.html", title="Добро пожаловать!")
-
-
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
 def group_new():
     """Add new group to the testing system.
@@ -190,6 +184,7 @@ def test_passing():
     return render_template("test_passing.html", passing=passing)
 
 
+@app.route('/test')
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
