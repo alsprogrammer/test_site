@@ -196,6 +196,7 @@ def test_start():
     return render_template("test.html", title="Добро пожаловать!", list=ready_to_test)
 
 
+@app.route('/test/admin')
 @app.route('/test/admin/statistics')
 def statistics():
     """Show the test system description page before test starts"""
