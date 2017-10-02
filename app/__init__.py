@@ -29,7 +29,7 @@ folder = Path(app.config['DATA_PATH'])
 # loading groups
 files_with_maps = folder.glob('*.gjsn')
 for cur_file in files_with_maps:
-    group_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r")
+    group_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r", encoding='utf-8')
     group_text = group_file.read()
     group_file.close()
     group_json = json.loads(group_text)
