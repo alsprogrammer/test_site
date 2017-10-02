@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve test for student
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/deploy/test_site
+Environment="PATH=/home/deploy/test_site"
+ExecStart=/usr/local/bin/gunicorn --workers 1 flask-studentsite
+
+[Install]
+WantedBy=multi-user.target
