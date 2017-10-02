@@ -41,7 +41,7 @@ def group_new():
             uu = uuid.uuid4().hex
             groups_to_test.update({uu: group})
             group_descr = json.dumps(group.to_dict(), ensure_ascii=False)
-            group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w")
+            group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w", encoding='utf-8')
             group_file.write(group_descr)
             group_file.flush()
             group_file.close()
@@ -90,7 +90,7 @@ def student_edit(group_uid, student_uid):
         groups_to_test[group_uid].students[student_uid].sur_name = form.sur_name.data
 
         group_descr = json.dumps(groups_to_test[group_uid].to_dict(), ensure_ascii=False)
-        group_file = open(os.path.join(app.config["DATA_PATH"], group_uid + ".gjsn"), mode="w+")
+        group_file = open(os.path.join(app.config["DATA_PATH"], group_uid + ".gjsn"), mode="w+", encoding='utf-8')
         group_file.write(group_descr)
         group_file.flush()
         group_file.close()

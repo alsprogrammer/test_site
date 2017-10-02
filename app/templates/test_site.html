@@ -38,7 +38,7 @@
 
     <form action="{{ url_for('test_pass', assessment_uuid=assessment_uid) }}"  method="post" name="login">
         {% for cur_task in assessment.tasks %}
-            <table width="80%" border="1" cellpadding="5" cellspacing="5" bordercolor="#333333">
+            <table width="80%" cellpadding="1%" border="1" bgcolor="grey" cellspacing="5">
                 <tr>
                     <td colspan="2">
                         {{ cur_task['stem'] }}
