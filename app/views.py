@@ -8,10 +8,6 @@ import json
 import os
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
 def group_new():
     """Add new group to the testing system.
