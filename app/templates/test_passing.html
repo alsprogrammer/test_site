@@ -20,6 +20,7 @@
         <tr>
             <td>{{ passing[cur_passing].student.__repr__() }}</td>
             <td>{{ passing[cur_passing].started }}</td>
+            <td><a href="{{ url_for('passing_delete', passing_uid=cur_passing) }}">Удалить</a></td>
         </tr>
         {% endfor %}
     </table>

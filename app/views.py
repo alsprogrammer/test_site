@@ -137,6 +137,16 @@ def test_list():
     return render_template("test_list.html", tests=tasksets)
 
 
+@app.route('/test/admin/passing_delete/<passing_uid>')
+def passing_delete(passing_uid):
+    if passing_uid not in passing.keys():
+        flash("Нет такого тестируемого")
+        return redirect(url_for('test_passing'))
+
+    del passing[passing_uid]
+    return redirect(url_for('test_passing'))
+
+
 @app.route('/test/admin/test/allow', methods=['GET', 'POST'])
 def allow_to_test():
     """Allows students to pass an assessment"""
