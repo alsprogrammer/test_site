@@ -153,9 +153,9 @@ def allow_to_test():
     form = AllowTestForm()
     form.assessment.choices = [(cur_assessment, tasksets[cur_assessment].name) for cur_assessment in tasksets]
     students = []
-    for cur_group in groups_to_test:
-        for cur_student in groups_to_test[cur_group].students:
-            students.append((cur_group + '.' + cur_student, groups_to_test[cur_group].students[cur_student].__repr__()))
+    for cur_group_uid, cur_group in sorted(groups_to_test.items(), key=lambda pair: pair[1].name):
+        for cur_student_uid, cur_student in sorted(cur_group.students.items(), key=lambda pair: pair[1].__repr__()):
+            students.append((cur_group_uid + '.' + cur_student_uid, cur_student.__repr__()))
     form.students.choices = students
     if form.validate_on_submit():
         if form.assessment.data not in tasksets.keys():
@@ -194,7 +194,7 @@ def test_passing():
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
-    return render_template("test.html", title="Добро пожаловать!", list=ready_to_test)
+    return render_template("test.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
 
 
 @app.route('/test/admin')
@@ -210,7 +210,7 @@ def test_pass(assessment_uuid):
     if request.method == 'GET':
         if assessment_uuid not in ready_to_test.keys():
             flash("Нет такого теста")
-            return redirect(url_for('allow_to_test'))
+            return redirect(url_for('test_start'))
 
         cur_assessment = ready_to_test[assessment_uuid]
         cur_assessment.started = datetime.datetime.now()
@@ -222,7 +222,7 @@ def test_pass(assessment_uuid):
     elif request.method == 'POST':
         if assessment_uuid not in passing.keys():
             flash("Нет такого теста")
-            return redirect(url_for('allow_to_test'))
+            return redirect(url_for('test_start'))
 
         assessment = passing[assessment_uuid]
         assessment.ended = datetime.datetime.now()
