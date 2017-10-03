@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block userscripts %}  {% endblock %}
 {% block menu %} {% endblock %}
+{% block top_menu %}
+                        <li><a href="{{ url_for('test_start') }}">К новому тесту</a></li>
+{% endblock %}
 
 {% block content %}
     <h3>Результаты тестирования</h3>
@@ -27,6 +30,4 @@
             </td>
         </tr>
     </table>
-
-
 {% endblock %}
