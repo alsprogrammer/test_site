@@ -26,13 +26,13 @@ def group_new():
             group = Group(form.speciality.data, form.start_year.data, form.name.data)
             for student_name in form.students_list.data.splitlines():
                 if student_name != "\n":
-                    names = student_name.split(" ")
+                    names = student_name.strip().split(" ")
                     if len(names) >= 3:
-                        student = Student(names[0], names[1], names[2], group)
+                        student = Student(last_name=names[0], first_name=names[1], sur_name=names[2], group=group)
                     elif len(names) == 2:
-                        student = Student(names[0], first_name=names[1], group=group)
+                        student = Student(last_name=names[0], first_name=names[1], group=group)
                     elif len(names) == 1:
-                        student = Student(names[0], group=group)
+                        student = Student(last_name=names[0], group=group)
                     else:
                         continue
 
