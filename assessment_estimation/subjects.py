@@ -129,11 +129,29 @@ class Task(FromToDict):
         else:
             raise TypeError()
 
+    def get_html_picture(self):
+        return "data:image/png;base64, {picture_code}".format(picture_code=self.picture)
+
     def from_dict(self, descr):
-        pass
+        self.theme = descr['theme']
+        self.stem = descr['stem']
+        self.picture = descr['picture']
+        self.answers = []
+        for cur_option in descr['answers']:
+            new_option = TaskOption()
+            new_option.from_dict(cur_option)
+            self.answers.append(new_option)
+        self.distractors = []
+        for cur_option in descr['distractors']:
+            new_option = TaskOption()
+            new_option.from_dict(cur_option)
+            self.distractors.append(new_option)
 
     def to_dict(self):
-        pass
+        answers = [cur_option.to_dict() for cur_option in self.answers]
+        distractors = [cur_option.to_dict() for cur_option in self.distractors]
+
+        return {'theme': self.theme, 'stem': self.stem, 'picture': self.picture, 'answers': answers, 'distractors': distractors}
 
     def __repr__(self):
         return "{}".format(self.stem)
@@ -146,10 +164,14 @@ class TaskOption(FromToDict):
         self.picture = picture
 
     def from_dict(self, descr):
-        pass
+        self.text = descr['text']
+        self.picture = descr['picture']
+
+    def get_html_picture(self):
+        return "data:image/png;base64, {picture_code}".format(picture_code=self.picture)
 
     def to_dict(self):
-        pass
+        return {'text': self.text, 'picture': self.picture}
 
     def __repr__(self):
         return "{}".format(self.text)
