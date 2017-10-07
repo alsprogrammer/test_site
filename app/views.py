@@ -14,7 +14,7 @@ def index():
 
 
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
-def admin_group_new():
+def group_new():
     """Add new group to the testing system.
     The group json file will be saved to the folder specified in config
     """
@@ -88,44 +88,21 @@ def student_edit(group_uid, student_uid):
 
     group = groups_to_test[group_uid]
     student = group.students[student_uid]
-    err_message = ""
     form = StudentForm(first_name=student.first_name, sur_name=student.sur_name, last_name=student.last_name)
     if form.validate_on_submit():
-        found = False
-        for group_uid in groups_to_test:
-            if groups_to_test[group_uid].name == form.name.data:
-                found = True
-                err_message = "Такая группа уже существует"
-                break
-        if not found:
-            group = Group(form.speciality.data, form.start_year.data, form.name.data)
-            for student_name in form.students_list.data.splitlines():
-                if student_name != "\n":
-                    names = student_name.split(" ")
-                    if len(names) >= 3:
-                        student = Student(names[0], names[1], names[2], group)
-                    elif len(names) == 2:
-                        student = Student(names[0], first_name=names[1], group=group)
-                    elif len(names) == 1:
-                        student = Student(names[0], group=group)
-                    else:
-                        continue
+        groups_to_test[group_uid].students[student_uid].last_name = form.last_name.data
+        groups_to_test[group_uid].students[student_uid].first_name = form.first_name.data
+        groups_to_test[group_uid].students[student_uid].sur_name = form.sur_name.data
 
-                    group.add_student(student)
+        group_descr = json.dumps(groups_to_test[group_uid].to_dict(), ensure_ascii=False)
+        group_file = open(os.path.join(app.config["DATA_PATH"], group_uid + ".gjsn"), mode="wo")
+        group_file.write(group_descr)
+        group_file.flush()
+        group_file.close()
 
-            uu = uuid.uuid4().hex
-            groups_to_test.update({uu: group})
-            group_descr = json.dumps(group.to_dict(), ensure_ascii=False)
-            group_file = open(os.path.join(app.config["DATA_PATH"], uu+".gjsn"), mode="w")
-            group_file.write(group_descr)
-            group_file.flush()
-            group_file.close()
+        flash("Студент изменен")
+        return redirect(url_for('group_list'))
 
-            flash("Группа добавлена")
-            return redirect('/test/admin/group/list')
-
-    if err_message:
-        flash(err_message)
     return render_template("student_edit.html", title="Добро пожаловать!", form=form)
 
 
