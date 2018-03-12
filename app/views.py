@@ -57,7 +57,7 @@ def group_new():
 @app.route('/test/admin/group/list')
 def group_list():
     """Show the test system description page before test starts"""
-    return render_template("group_list.html", groups=groups_to_test)
+    return render_template("group_list.html", groups=groups_to_test, groups_keys=sorted(groups_to_test, key=lambda group_key: groups_to_test[group_key].name))
 
 
 @app.route('/test/admin/group/edit/<group_uid>')
@@ -134,7 +134,7 @@ def test_new():
 @app.route('/test/admin/test/list')
 def test_list():
     """Show the test system description page before test starts"""
-    return render_template("test_list.html", tests=tasksets)
+    return render_template("test_list.html", tests=tasksets, test_keys=sorted(tasksets, key=lambda test_key: tasksets[test_key].name))
 
 
 @app.route('/test/admin/passing_delete/<passing_uid>')
@@ -201,7 +201,7 @@ def test_start():
 @app.route('/test/admin/statistics')
 def statistics():
     """Show the test system description page before test starts"""
-    return render_template("statistics.html", passed=passed)
+    return render_template("statistics.html", passed=passed, passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].started))
 
 
 @app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])

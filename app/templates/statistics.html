@@ -16,7 +16,7 @@
     {% endwith %}
 
     <table width="100%">
-        {% for assessment in passed %}
+        {% for assessment in passed_keys %}
         <tr>
             <td>{{ passed[assessment].student.__repr__() }}</td>
             <td>{{ 'Балл {:.2f} ({:.2f}% правильных ответов)'.format(passed[assessment].real_score, passed[assessment].score) }}</td>

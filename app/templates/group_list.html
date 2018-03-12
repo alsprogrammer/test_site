@@ -15,7 +15,7 @@
     {% endwith %}
 
     <table width="100%">
-        {% for group_uid in groups %}
+        {% for group_uid in groups_keys %}
         <tr>
             <td>{{ groups[group_uid] }}</td>
             <td><a href="{{ url_for('group_edit', group_uid=group_uid) }}">Редактировать</a> </td>
