@@ -7,6 +7,8 @@ from pathlib import Path
 from assessment_estimation.subjects import Group
 import json
 
+from queue import Queue
+import threading
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -20,6 +22,9 @@ ready_to_test = {}  # the not started yet assessments (but given for the student
 tasksets = {}  # the test ready to be used to generate assessments
 passing = {}  # the dict of the assessments that are passing at the moment
 passed = {}  # the dict of the passed assessments
+
+q = Queue(maxsize=0)
+tasksets_condition = threading.Condition()
 
 from app import views
 from assessment_estimation.subjects import *

@@ -6,3 +6,5 @@ DATA_PATH = './data/'
 
 CSRF_ENABLED = True
 SECRET_KEY = 'sjjhdu0938dffiuugkirrg1877rt'
+
+num_threads = 5

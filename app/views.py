@@ -1,11 +1,13 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test, tasksets, passing, passed, ready_to_test
+from app import app, lm, oid, groups_to_test, tasksets, passing, passed, ready_to_test, tasksets_condition
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
 import json
 import os
+
+from app import q, tasksets_condition
 
 
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
@@ -176,8 +178,8 @@ def allow_to_test():
                 flash("Нет такого студента")
                 return redirect(url_for('test_list'))
 
-            assessment = taskset.create_test(taskset.tasks_num, student=groups_to_test[group_uuid].students[student_uuid])
-            ready_to_test.update({uuid.uuid4().hex: assessment})
+            assessment_dict = {'taskset': taskset, 'student': groups_to_test[group_uuid].students[student_uuid]}
+            q.put(assessment_dict)
 
         return redirect(url_for('test_passing'))
 
@@ -194,14 +196,19 @@ def test_passing():
 @app.route('/test/start')
 def test_start():
     """Show the test system description page before test starts"""
-    return render_template("test.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
+
+    tasksets_condition.acquire()
+    result = render_template("test.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
+    tasksets_condition.release()
+
+    return result
 
 
 @app.route('/test/admin')
 @app.route('/test/admin/statistics')
 def statistics():
     """Show the test system description page before test starts"""
-    return render_template("statistics.html", passed=passed, passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].started))
+    return render_template("statistics.html", passed=passed, passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].ended))
 
 
 @app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
