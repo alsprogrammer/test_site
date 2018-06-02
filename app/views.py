@@ -156,7 +156,7 @@ def allowed_delete(assessment_uuid):
         return redirect(url_for('test_passing'))
 
     del ready_to_test[assessment_uuid]
-    return redirect(url_for('test_passing'))
+    return redirect(url_for('test_allowed'))
 
 
 @app.route('/test/admin/test/allow', methods=['GET', 'POST'])

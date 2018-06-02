@@ -3,9 +3,7 @@
 {% block menu %} {% endblock %}
 
 {% block content %}
-<CENTER>
-
-<h4>Список допущенных к тесту:</h4>
+<h3>Список допущенных к тесту:</h3>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -20,7 +18,7 @@
     <table width="100%">
         {% for allowed in list %}
         <tr>
-            <td><a href="{{ url_for('allowed_delete', assessment_uuid=allowed[0])}}">Удалить {{ allowed[1].student.__repr__() }}({{ allowed[1].name }})</a></td>
+            <td>{{ allowed[1].student.__repr__() }}({{ allowed[1].name }}) <a href="{{ url_for('allowed_delete', assessment_uuid=allowed[0])}}">Удалить</a></td>
         </tr>
         {% endfor %}
     </table>
