@@ -7,7 +7,7 @@ import uuid
 import json
 import os
 
-from app import q, tasksets_condition
+from app import creating_assessments_queue, tasksets_condition
 
 
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
@@ -149,6 +149,16 @@ def passing_delete(passing_uid):
     return redirect(url_for('test_passing'))
 
 
+@app.route('/test/admin/allowed_delete/<assessment_uuid>')
+def allowed_delete(assessment_uuid):
+    if assessment_uuid not in ready_to_test.keys():
+        flash("Нет такого допущенного")
+        return redirect(url_for('test_passing'))
+
+    del ready_to_test[assessment_uuid]
+    return redirect(url_for('test_passing'))
+
+
 @app.route('/test/admin/test/allow', methods=['GET', 'POST'])
 def allow_to_test():
     """Allows students to pass an assessment"""
@@ -179,7 +189,7 @@ def allow_to_test():
                 return redirect(url_for('test_list'))
 
             assessment_dict = {'taskset': taskset, 'student': groups_to_test[group_uuid].students[student_uuid]}
-            q.put(assessment_dict)
+            creating_assessments_queue.put(assessment_dict)
 
         return redirect(url_for('test_passing'))
 
@@ -190,6 +200,16 @@ def allow_to_test():
 def test_passing():
     """Show the test system description page before test starts"""
     return render_template("test_passing.html", passing=passing)
+
+
+@app.route('/test/admin/allowed')
+def test_allowed():
+    """Show the test system description page before test starts"""
+    tasksets_condition.acquire()
+    result = render_template("test_allowed.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
+    tasksets_condition.release()
+
+    return result
 
 
 @app.route('/test')

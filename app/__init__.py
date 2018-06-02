@@ -23,7 +23,7 @@ tasksets = {}  # the test ready to be used to generate assessments
 passing = {}  # the dict of the assessments that are passing at the moment
 passed = {}  # the dict of the passed assessments
 
-q = Queue(maxsize=0)
+creating_assessments_queue = Queue(maxsize=0)
 tasksets_condition = threading.Condition()
 
 from app import views
