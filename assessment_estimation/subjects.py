@@ -1,4 +1,3 @@
-import uuid
 from bs4 import BeautifulSoup, Tag
 from abc import ABCMeta, abstractmethod
 import copy
@@ -354,7 +353,7 @@ class Assessment(FromToDict):
         self.mistaken_tasks = []
         self.score = 0
         self.real_score = 0
-        self.uuid = uuid.uuid4().hex()
+        self.uuid = uuid.uuid4().hex
 
     def get_score(self, answers):
         """

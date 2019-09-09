@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 from assessment_estimation.subjects import Student, Group, Assessment, Task
 
 
@@ -8,7 +9,7 @@ class StudentStorage(ABC):
         pass
 
     @abstractmethod
-    def get_by_group_id(self, group_id) -> list[Student]:
+    def get_by_group_id(self, group_id) -> List[Student]:
         pass
 
     @abstractmethod
@@ -16,7 +17,7 @@ class StudentStorage(ABC):
         pass
 
     @abstractmethod
-    def get_all(self) -> list[Student]:
+    def get_all(self) -> List[Student]:
         pass
 
 
@@ -26,7 +27,7 @@ class GroupStorage(ABC):
         pass
 
     @abstractmethod
-    def get_by_year(self, year: int) -> list[Group]:
+    def get_by_year(self, year: int) -> List[Group]:
         pass
 
     @abstractmethod
@@ -50,9 +51,9 @@ class TaskStorage(ABC):
         pass
 
     @abstractmethod
-    def get_by_topic(self, topic_name: str) -> list[Task]:
+    def get_by_topic(self, topic_name: str) -> List[Task]:
         pass
 
     @abstractmethod
-    def get_topic_names(self, topic_name: str) -> list[str]:
+    def get_topic_names(self, topic_name: str) -> List[str]:
         pass
