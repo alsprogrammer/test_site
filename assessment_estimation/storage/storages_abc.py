@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Coroutine, Generator
 from typing import List
 from assessment_estimation.subjects import Model, Student, Group, Task
 
