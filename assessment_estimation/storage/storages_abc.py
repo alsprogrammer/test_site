@@ -20,20 +20,6 @@ class StudentStorage(Storage, ABC):
         pass
 
 
-class PersistableStorage:
-    elements_dict = {}
-
-    def persist(self, coder: Coroutine[Model, None, None]):
-        coder.__next__()
-        for cur_element_uid in self.elements_dict:
-            coder.send(self.elements_dict[cur_element_uid])
-        coder.close()
-
-    def restore(self, decoder: Generator[Model, None, None]):
-        for cur_element in decoder:
-            self.elements_dict[cur_element.uuid] = cur_element
-
-
 class GroupStorage(Storage, ABC):
     @abstractmethod
     def get_by_year(self, year: int) -> List[Group]:
@@ -41,7 +27,11 @@ class GroupStorage(Storage, ABC):
 
 
 class AssessmentStorage(Storage, ABC):
-    pass
+    def get_by_id(self, id: str) -> Model:
+        pass
+
+    def upsert(self, object_to_upsert: Model):
+        pass
 
 
 class TaskStorage(Storage, ABC):
