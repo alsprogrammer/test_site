@@ -24,6 +24,10 @@ class GroupStorage(Storage, ABC):
     def get_by_year(self, year: int) -> List[Group]:
         pass
 
+    @abstractmethod
+    def get_by_speciality(self, speciality_name: str) -> List[Group]:
+        pass
+
 
 class AssessmentStorage(Storage, ABC):
     def get_by_id(self, id: str) -> Model:
