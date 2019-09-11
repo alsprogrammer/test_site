@@ -1,8 +1,12 @@
-from typing import Generator, Coroutine, Iterable, List, Dict
+from typing import Any, Generator, Coroutine, Iterable, List, Dict, Callable
+from xml.etree import ElementTree as ET
 
+from assessment_estimation.storage.in_memory_storage.xml_persistence import XMLFileStorage
 from assessment_estimation.subjects import Model, Assessment, Group, Task, Student
 from assessment_estimation.storage.storages_abc import AssessmentStorage, GroupStorage, TaskStorage, StudentStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import PersistableStorage
+from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import element_pusher
+from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import element_popper
 
 
 class InMemoryAssessmentStorage(PersistableStorage, AssessmentStorage):
@@ -33,58 +37,31 @@ class InMemoryStudentStorage(StudentStorage, PersistableStorage):
         return self.elements_dict.items()
 
 
-def assessment_xml_converter(assessment: Assessment) -> str:
-    return assessment.uuid
+def assessment2dict(assessment: Assessment) -> Dict:
+    return {"id": assessment.uuid}
 
 
-def xml2dict_generator(source: Iterable, converter) -> Generator[List[Model], None, None]:
-    for xml_child in source:
-        yield converter(xml_child.attrib)
-
-
-def dict2assessment_generator(dict_to_transform: Dict) -> Model:
+def xml2assessment_generator(dict_to_transform: ET.Element) -> Model:
     cur_assessment = Assessment()
-    cur_assessment.from_dict(dict_to_transform)
+    cur_assessment.from_dict(dict_to_transform.attrib)
     return cur_assessment
 
 
 if __name__ == "__main__":
+    xml_filename = "/tmp/filename.xml"
+
     assessment_storage = InMemoryAssessmentStorage()
     assessment = Assessment()
     assessment_storage.upsert(assessment)
 
-    file_coder = FileStorage.persist("/tmp/1.xml", assessment_xml_converter)
+    xml_file = XMLFileStorage(xml_filename, "Tests", "Test", assessment2dict)
+    xml_coder = element_pusher(xml_file)
+    assessment_storage.persist(xml_coder)
+    xml_file.close()
 
-    assessment_storage.persist(file_coder)
-
-    xml_string = """<?xml version="1.0" encoding="UTF-8"?>
-<Test createdate="12.03.2018 11:22:17" discipline="Дискретная математика ТБ 090106" name="dm_block1">
-  <Question number="0" theme="Множество">
-    <Text>Принадлежит ли -10 множеству натуральных чисел?</Text>
-    <Variant right="-">
-      <Text>да</Text>
-    </Variant>
-    <Variant right="+">
-      <Text>нет</Text>
-    </Variant>
-  </Question>
-  <Question number="1" theme="Множество">
-    <Text>Принадлежит ли 2 множеству целых чисел?</Text>
-    <Variant right="+">
-      <Text>да</Text>
-    </Variant>
-    <Variant right="-">
-      <Text>нет</Text>
-    </Variant>
-  </Question>
-</Test>
-    """
-
-    print(xml_string)
-    # tree = ET.ElementTree(ET.fromstring(xml_string))
-    tree = ET.parse("/tmp/2.xml")
+    tree = ET.parse(xml_filename)
     root = tree.getroot()
-    xml_decoder = xml2dict_generator(root, dict2assessment_generator)
+    xml_decoder = element_popper(root, xml2assessment_generator)
     assessment_storage.restore(xml_decoder)
 
     print(root.tag)

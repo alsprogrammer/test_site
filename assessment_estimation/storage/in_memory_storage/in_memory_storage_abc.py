@@ -1,8 +1,7 @@
-from abc import ABC
-from typing import Generator, Coroutine, List, Dict, Iterable
-from assessment_estimation.storage.storages_abc import Storage, AssessmentStorage
-from assessment_estimation.storage.in_memory_storage.persistent_converters.file_converter import FileStorage
-from assessment_estimation.subjects import Model, Assessment
+from abc import ABC, abstractmethod
+from typing import Any, Generator, Coroutine, Callable, Iterable, List
+from assessment_estimation.storage.storages_abc import Storage
+from assessment_estimation.subjects import Model
 
 import xml.etree.ElementTree as ET
 
@@ -27,3 +26,27 @@ class PersistableStorage(InMemoryStorage, ABC):
     def restore(self, decoder: Generator[Model, None, None]):
         for cur_element in decoder:
             self.elements_dict[cur_element.uuid] = cur_element
+
+
+def element_pusher(iterable_to_append) -> Coroutine[Model, None, None]:
+    try:
+        while True:
+            cur_model = (yield)
+            iterable_to_append.append(cur_model)
+    except GeneratorExit:
+        pass
+
+
+def element_popper(source: Iterable, converter: Callable[[Any], Model]) -> Generator[List[Model], None, None]:
+    for element in source:
+        yield converter(element)
+
+
+class FileStorage(ABC):
+    @abstractmethod
+    def append(self, model_to_add: Model):
+        pass
+
+    @abstractmethod
+    def close(self):
+        pass
