@@ -42,11 +42,17 @@ def element_popper(source: Iterable, converter: Callable[[Any], Model]) -> Gener
         yield converter(element)
 
 
-class FileStorage(ABC):
+class File2Save(ABC):
     @abstractmethod
     def append(self, model_to_add: Model):
         pass
 
+    @abstractmethod
+    def close(self):
+        pass
+
+
+class File2Read(Iterable, ABC):
     @abstractmethod
     def close(self):
         pass

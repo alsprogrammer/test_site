@@ -1,7 +1,7 @@
 from typing import Any, Generator, Coroutine, Iterable, List, Dict, Callable
 from xml.etree import ElementTree as ET
 
-from assessment_estimation.storage.in_memory_storage.xml_persistence import XMLFileStorage
+from assessment_estimation.storage.in_memory_storage.xml_persistence import XMLFile2Save
 from assessment_estimation.subjects import Model, Assessment, Group, Task, Student
 from assessment_estimation.storage.storages_abc import AssessmentStorage, GroupStorage, TaskStorage, StudentStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import PersistableStorage
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     assessment = Assessment()
     assessment_storage.upsert(assessment)
 
-    xml_file = XMLFileStorage(xml_filename, "Tests", "Test", assessment2dict)
+    xml_file = XMLFile2Save(xml_filename, "Tests", "Test", assessment2dict)
     xml_coder = element_pusher(xml_file)
     assessment_storage.persist(xml_coder)
     xml_file.close()
