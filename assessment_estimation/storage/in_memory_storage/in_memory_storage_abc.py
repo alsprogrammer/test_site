@@ -1,58 +1,59 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generator, Coroutine, Callable, Iterable, List
+from _io import _IOBase
+from typing import Any, Callable, Dict
 from assessment_estimation.storage.storages_abc import Storage
 from assessment_estimation.subjects import Model
 
 import xml.etree.ElementTree as ET
 
 
-class InMemoryStorage(Storage, ABC):
-    elements_dict = {}
+class FileLike(ABC, _IOBase):
+    pass
 
-    def get_by_id(self, id: str) -> Model:
-        return self.elements_dict.get(id)
 
-    def upsert(self, object_to_upsert: Model):
-        self.elements_dict[object_to_upsert.uuid] = object_to_upsert
+class InMemoryStorage(Storage, ABC, dict):
+    pass
 
 
 class PersistableStorage(InMemoryStorage, ABC):
-    def persist(self, coder: Coroutine[Model, None, None]):
-        coder.__next__()
-        for cur_element_uid in self.elements_dict:
-            coder.send(self.elements_dict[cur_element_uid])
-        coder.close()
+    @staticmethod
+    def _object2dict(obj: Any, class_key=None) -> Dict[str, Any]:
+        """
+        Convert any object to dict
+        This part of the code is taken from the repository https://gist.github.com/sungitly/3f75cb297572dace2937
+        :param obj: object to convert to dict
+        :param class_key:
+        :return: the dictionary that represents the object
+        """
+        if isinstance(obj, dict):
+            data = {}
+            for (k, v) in obj.items():
+                data[k] = PersistableStorage._object2dict(v, class_key)
+            return data
+        elif hasattr(obj, "_ast"):
+            return PersistableStorage._object2dict(obj._ast())
+        elif hasattr(obj, "__iter__"):
+            return [PersistableStorage._object2dict(v, class_key) for v in obj]
+        elif hasattr(obj, "__dict__"):
+            data = dict([(key, PersistableStorage._object2dict(value, class_key))
+                         for key, value in obj.__dict__.items()
+                         if not callable(value) and not key.startswith('_') and key not in ['name']])
+            if class_key is not None and hasattr(obj, "__class__"):
+                data[class_key] = obj.__class__.__name__
+            return data
+        else:
+            return obj
 
-    def restore(self, decoder: Generator[Model, None, None]):
-        for cur_element in decoder:
-            self.elements_dict[cur_element.uuid] = cur_element
+    def __init__(self, file: FileLike, dict2object: Callable[[dict], Model]):
+        self._converter = dict2object
+        self._inner_storage = file
 
+    def persist(self):
+        for (key, value) in self.items():
+            self._inner_storage.write(self._converter(value))
+        self._inner_storage.flush()
 
-def element_pusher(iterable_to_append) -> Coroutine[Model, None, None]:
-    try:
-        while True:
-            cur_model = (yield)
-            iterable_to_append.append(cur_model)
-    except GeneratorExit:
-        pass
-
-
-def element_popper(source: Iterable, converter: Callable[[Any], Model]) -> Generator[List[Model], None, None]:
-    for element in source:
-        yield converter(element)
-
-
-class File2Save(ABC):
-    @abstractmethod
-    def append(self, model_to_add: Model):
-        pass
-
-    @abstractmethod
-    def close(self):
-        pass
-
-
-class File2Read(Iterable, ABC):
-    @abstractmethod
-    def close(self):
-        pass
+    def restore(self):
+        for cur_element in self._inner_storage:
+            entity = self._converter(cur_element)
+            self[entity.uuid] = entity

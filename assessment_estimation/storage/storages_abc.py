@@ -1,16 +1,11 @@
 from abc import ABC, abstractmethod
+from collections import abc
 from typing import List
 from assessment_estimation.subjects import Model, Student, Group, Task
 
 
-class Storage(ABC):
-    @abstractmethod
-    def get_by_id(self, id: str) -> Model:
-        pass
-
-    @abstractmethod
-    def upsert(self, object_to_upsert: Model):
-        pass
+class Storage(ABC, abc.MutableMapping):
+    pass
 
 
 class StudentStorage(Storage, ABC):
@@ -30,11 +25,7 @@ class GroupStorage(Storage, ABC):
 
 
 class AssessmentStorage(Storage, ABC):
-    def get_by_id(self, id: str) -> Model:
-        pass
-
-    def upsert(self, object_to_upsert: Model):
-        pass
+    pass
 
 
 class TaskStorage(Storage, ABC):

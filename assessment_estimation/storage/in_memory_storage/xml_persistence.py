@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 from typing import Callable, Dict, Iterator, _T_co
 from xml.etree import ElementTree as ET
 
