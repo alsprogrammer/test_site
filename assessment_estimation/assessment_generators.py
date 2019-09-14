@@ -21,7 +21,7 @@ class StandardGenerator:
 
         new_assessment = Assessment()
         new_assessment.tasks = StandardGenerator._select_tasks(tasks, task_num)
-        StandardGenerator._build_options(new_assessment)
+        StandardGenerator._set_answers_distractors(new_assessment)
 
         return new_assessment
 
@@ -32,7 +32,7 @@ class StandardGenerator:
         return shuffled_task_list[:task_num]
 
     @staticmethod
-    def _build_options(assessment: Assessment):
+    def _set_answers_distractors(assessment: Assessment):
         for cur_task in assessment.tasks:
             assessment.answers_uuids.update([cur_answer.uuid for cur_answer in cur_task.answers])
             assessment.distractors_uuids.update([cur_distractor.uuid for cur_distractor in cur_task.distractors])
