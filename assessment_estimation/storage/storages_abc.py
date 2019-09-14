@@ -9,9 +9,7 @@ class Storage(ABC, abc.MutableMapping):
 
 
 class StudentStorage(Storage, ABC):
-    @abstractmethod
-    def get_all(self) -> List[Student]:
-        pass
+    pass
 
 
 class GroupStorage(Storage, ABC):
