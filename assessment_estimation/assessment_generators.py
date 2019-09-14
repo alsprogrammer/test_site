@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Callable, List
 from queue import Queue
 import threading
@@ -6,7 +7,13 @@ from random import shuffle
 from assessment_estimation.subjects import Task, Assessment
 
 
-class DefaultAssessmentGenerator:
+class AssessmentGenerator(ABC):
+    @abstractmethod
+    def __call__(self, tasks: List[Task], task_num: int) -> Assessment:
+        pass
+
+
+class DefaultAssessmentGenerator(AssessmentGenerator):
     def __init__(self, threads_num: int, assessment_handler: Callable[[Queue], None]):
         creating_assessments_queue = Queue(maxsize=0)
 
