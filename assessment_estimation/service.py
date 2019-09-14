@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Callable, Set
 from assessment_estimation.storage.storages_abc import StudentStorage, TaskStorage, GroupStorage, AssessmentStorage
 from assessment_estimation.subjects import Student, Assessment, Task
@@ -32,6 +33,17 @@ class AssessmentService:
         new_assessment = self._assessment_generator(possible_tasks, task_num)
         new_assessment.student = self._student_storage[student_uid]
         self._waiting_assessment_storage[new_assessment.uuid] = new_assessment
+
+    def start_assessment(self, assessment_uid: str) -> Assessment:
+        if assessment_uid not in self._waiting_assessment_storage:
+            raise KeyError()
+
+        assessment = self._waiting_assessment_storage[assessment_uid]
+        assessment.started = datetime.datetime.now()
+        self._active_assessment_storage[assessment.uuid] = assessment
+        del self._waiting_assessment_storage[assessment_uid]
+
+        return assessment
 
     def answer_assessment(self, assessment_uid: str, checked_option_uids: List[str]):
         if assessment_uid not in self._active_assessment_storage:
