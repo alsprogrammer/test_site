@@ -6,7 +6,7 @@ from random import shuffle
 from assessment_estimation.subjects import Task, Assessment
 
 
-class StandardGenerator:
+class DefaultAssessmentGenerator:
     def __init__(self, threads_num: int, assessment_handler: Callable[[Queue], None]):
         creating_assessments_queue = Queue(maxsize=0)
 
@@ -20,9 +20,9 @@ class StandardGenerator:
             raise
 
         new_assessment = Assessment()
-        new_assessment.tasks = StandardGenerator._select_tasks(tasks, task_num)
-        StandardGenerator._set_answers_distractors(new_assessment)
-        StandardGenerator._calculate_and_set_threshold(new_assessment)
+        new_assessment.tasks = DefaultAssessmentGenerator._select_tasks(tasks, task_num)
+        DefaultAssessmentGenerator._set_answers_distractors(new_assessment)
+        DefaultAssessmentGenerator._calculate_and_set_threshold(new_assessment)
 
         return new_assessment
 
