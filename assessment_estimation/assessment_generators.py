@@ -22,6 +22,7 @@ class StandardGenerator:
         new_assessment = Assessment()
         new_assessment.tasks = StandardGenerator._select_tasks(tasks, task_num)
         StandardGenerator._set_answers_distractors(new_assessment)
+        StandardGenerator._calculate_and_set_threshold(new_assessment)
 
         return new_assessment
 
@@ -36,3 +37,7 @@ class StandardGenerator:
         for cur_task in assessment.tasks:
             assessment.answers_uuids.update([cur_answer.uuid for cur_answer in cur_task.answers])
             assessment.distractors_uuids.update([cur_distractor.uuid for cur_distractor in cur_task.distractors])
+
+    @staticmethod
+    def _calculate_and_set_threshold(assessment: Assessment):
+        pass
