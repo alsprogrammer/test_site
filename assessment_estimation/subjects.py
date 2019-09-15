@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup, Tag
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, ABC, abstractmethod
 import copy
 import uuid
 import random
@@ -26,7 +26,12 @@ class FromToDict:
         """
 
 
-class Student(FromToDict):
+class Model(ABC):
+    def __init__(self):
+        self.uuid = uuid.uuid4().hex
+
+
+class Student(Model, FromToDict):
     """The student class. Describes the student's name and group"""
 
     def __init__(self, last_name="", first_name="", sur_name="", group=None):
@@ -57,7 +62,7 @@ class Student(FromToDict):
         return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.first_name, gname=self.group.name)
 
 
-class Group(FromToDict):
+class Group(Model, FromToDict):
     """The group class. Describes the group and its students"""
 
     def __init__(self, speciality, year, name):
@@ -98,7 +103,7 @@ class Group(FromToDict):
         return "{name} ({year}, {spec})".format(name=self.name, year=self.start_year, spec=self.speciality)
 
 
-class Task(FromToDict):
+class Task(Model, FromToDict):
     """Describes single task in an assessment"""
     def __init__(self, stem="", theme=None, picture=None):
         self.theme = theme
@@ -157,7 +162,7 @@ class Task(FromToDict):
         return "{}".format(self.stem)
 
 
-class TaskOption(FromToDict):
+class TaskOption(Model, FromToDict):
     """Single task element - answer or distractor"""
     def __init__(self, text="", picture=None):
         self.text = text
@@ -177,7 +182,7 @@ class TaskOption(FromToDict):
         return "{}".format(self.text)
 
 
-class TasksPool(FromToDict):
+class TasksPool(Model, FromToDict):
     """A set of tasks to choose the tasks for a particular assessment from"""
 
     def __init__(self, assessment_desciption=None):
@@ -330,7 +335,7 @@ class TasksPool(FromToDict):
         return "{name} ({qnum})".format(name=self.name, qnum=len(self.tasks))
 
 
-class Assessment(FromToDict):
+class Assessment(Model, FromToDict):
     """The assessment for the student"""
     def __init__(self, student=None):
         """
@@ -353,6 +358,7 @@ class Assessment(FromToDict):
         self.mistaken_tasks = []
         self.score = 0
         self.real_score = 0
+        self.uuid = uuid.uuid4().hex
 
     def get_score(self, answers):
         """
