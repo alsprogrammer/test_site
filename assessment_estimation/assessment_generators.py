@@ -54,3 +54,4 @@ class DefaultAssessmentGenerator(AssessmentGenerator):
             assessment = assessment_queue.get()
             assessment.threshold = 60
             assessment_storage[assessment.uuid] = assessment
+            assessment_queue.task_done()
