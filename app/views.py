@@ -1,15 +1,118 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test, tasksets, passing, passed, ready_to_test, tasksets_condition
+from app import app, lm, oid, groups_to_test, passing, passed, ready_to_test
 from .forms import *
 from assessment_estimation.subjects import *
 import uuid
 import json
 import os
 
-from app import creating_assessments_queue, tasksets_condition
+from app import assessment_service
 
 
+@app.route('/test')
+@app.route('/test/start')
+def test_start():
+    """Show the test system description page before test starts"""
+
+    result = render_template("test.html", title="Добро пожаловать!",
+                             list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
+
+    return result
+
+
+@app.route('/test/admin')
+@app.route('/test/admin/statistics')
+def statistics():
+    """Show the test system description page before test starts"""
+    return render_template("statistics.html", passed=passed,
+                           passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].ended))
+
+
+@app.route('/test/showresult/<assessment_uid>')
+def show_result(assessment_uid):
+    """Show the result of the test"""
+    if assessment_uid not in passed.keys():
+        flash("Нет такого теста")
+        return redirect(url_for('index'))
+
+    return render_template("result.html", assessment=passed[assessment_uid])
+
+
+@app.route('/test/admin/passing_delete/<passing_uid>')
+def passing_delete(passing_uid):
+    if passing_uid not in passing.keys():
+        flash("Нет такого тестируемого")
+        return redirect(url_for('test_passing'))
+
+    assessment_service.cancel_assessment(passing_uid)
+    return redirect(url_for('test_passing'))
+
+
+@app.route('/test/admin/allowed_delete/<assessment_uuid>')
+def allowed_delete(assessment_uuid):
+    if assessment_uuid not in ready_to_test.keys():
+        flash("Нет такого допущенного")
+        return redirect(url_for('test_passing'))
+
+    assessment_service.remove_assessment(assessment_uuid)
+    return redirect(url_for('test_allowed'))
+
+
+@app.route('/test/admin/group/list')
+def group_list():
+    """Show the test system description page before test starts"""
+    return render_template("group_list.html", groups=groups_to_test,
+                           groups_keys=sorted(groups_to_test, key=lambda group_key: groups_to_test[group_key].name))
+
+
+@app.route('/test/admin/passing')
+def test_passing():
+    """Show the test system description page before test starts"""
+    return render_template("test_passing.html", passing=passing)
+
+
+@app.route('/test/admin/allowed')
+def test_allowed():
+    """Show the test system description page before test starts"""
+    return render_template("test_allowed.html", title="Добро пожаловать!",
+                           list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
+
+
+@app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
+def test_pass(assessment_uuid):
+    """Show the test system description page before test starts"""
+    if assessment_uuid not in ready_to_test.keys():
+        flash("Нет такого теста")
+        return redirect(url_for('test_start'))
+
+    if request.method == 'GET':
+        cur_assessment = assessment_service.start_assessment(assessment_uuid)
+
+        return render_template("test_site.html", title="Добро пожаловать!",
+                               assessment_uid=assessment_uuid, assessment=cur_assessment)
+
+    elif request.method == 'POST':
+        results = request.form
+        assessment_service.answer_assessment(assessment_uuid, results)
+
+        return redirect(url_for('show_result', assessment_uid=assessment_uuid))
+
+
+@app.route('/login/', methods=['GET', 'POST'])
+@oid.loginhandler
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash("Вы запросили вход для " + form.openid.data)
+        return redirect('/index')
+
+    return render_template("login.html", title="Вход в систему", form=form, providers=app.config['OPENID_PROVIDERS'])
+
+
+############
+# The rest here are methods to re-implement
+############
 @app.route('/test/admin/group/new', methods=['GET', 'POST'])
 def group_new():
     """Add new group to the testing system.
@@ -54,12 +157,6 @@ def group_new():
     if err_message:
         flash(err_message)
     return render_template("new_group.html", title="Добро пожаловать!", form=form)
-
-
-@app.route('/test/admin/group/list')
-def group_list():
-    """Show the test system description page before test starts"""
-    return render_template("group_list.html", groups=groups_to_test, groups_keys=sorted(groups_to_test, key=lambda group_key: groups_to_test[group_key].name))
 
 
 @app.route('/test/admin/group/edit/<group_uid>')
@@ -136,154 +233,5 @@ def test_new():
 @app.route('/test/admin/test/list')
 def test_list():
     """Show the test system description page before test starts"""
-    return render_template("test_list.html", tests=tasksets, test_keys=sorted(tasksets, key=lambda test_key: tasksets[test_key].name))
-
-
-@app.route('/test/admin/passing_delete/<passing_uid>')
-def passing_delete(passing_uid):
-    if passing_uid not in passing.keys():
-        flash("Нет такого тестируемого")
-        return redirect(url_for('test_passing'))
-
-    del passing[passing_uid]
-    return redirect(url_for('test_passing'))
-
-
-@app.route('/test/admin/allowed_delete/<assessment_uuid>')
-def allowed_delete(assessment_uuid):
-    if assessment_uuid not in ready_to_test.keys():
-        flash("Нет такого допущенного")
-        return redirect(url_for('test_passing'))
-
-    del ready_to_test[assessment_uuid]
-    return redirect(url_for('test_allowed'))
-
-
-@app.route('/test/admin/test/allow', methods=['GET', 'POST'])
-def allow_to_test():
-    """Allows students to pass an assessment"""
-    form = AllowTestForm()
-    form.assessment.choices = [(cur_assessment, tasksets[cur_assessment].name) for cur_assessment in tasksets]
-    students = []
-    for cur_group_uid, cur_group in sorted(groups_to_test.items(), key=lambda pair: pair[1].name):
-        for cur_student_uid, cur_student in sorted(cur_group.students.items(), key=lambda pair: pair[1].__repr__()):
-            students.append((cur_group_uid + '.' + cur_student_uid, cur_student.__repr__()))
-    form.students.choices = students
-    if form.validate_on_submit():
-        if form.assessment.data not in tasksets.keys():
-            flash("Нет такого теста")
-            return redirect(url_for('test_list'))
-
-        taskset = tasksets[form.assessment.data]
-
-        for cur_student in form.students.data:
-            student_data = cur_student.split('.')
-            group_uuid = student_data[0]
-            student_uuid = student_data[1]
-            if group_uuid not in groups_to_test.keys():
-                flash("Нет такой группы")
-                return redirect(url_for('group_list'))
-
-            if student_uuid not in groups_to_test[student_data[0]].students.keys():
-                flash("Нет такого студента")
-                return redirect(url_for('test_list'))
-
-            assessment_dict = {'taskset': taskset, 'student': groups_to_test[group_uuid].students[student_uuid]}
-            creating_assessments_queue.put(assessment_dict)
-
-        return redirect(url_for('test_passing'))
-
-    return render_template("test_allow.html", title="Добро пожаловать!", form=form)
-
-
-@app.route('/test/admin/passing')
-def test_passing():
-    """Show the test system description page before test starts"""
-    return render_template("test_passing.html", passing=passing)
-
-
-@app.route('/test/admin/allowed')
-def test_allowed():
-    """Show the test system description page before test starts"""
-    tasksets_condition.acquire()
-    result = render_template("test_allowed.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
-    tasksets_condition.release()
-
-    return result
-
-
-@app.route('/test')
-@app.route('/test/start')
-def test_start():
-    """Show the test system description page before test starts"""
-
-    tasksets_condition.acquire()
-    result = render_template("test.html", title="Добро пожаловать!", list=sorted(ready_to_test.items(), key=lambda pair: pair[1].student.__repr__()))
-    tasksets_condition.release()
-
-    return result
-
-
-@app.route('/test/admin')
-@app.route('/test/admin/statistics')
-def statistics():
-    """Show the test system description page before test starts"""
-    return render_template("statistics.html", passed=passed, passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].ended))
-
-
-@app.route('/test/pass/<assessment_uuid>', methods=['GET', 'POST'])
-def test_pass(assessment_uuid):
-    """Show the test system description page before test starts"""
-    if request.method == 'GET':
-        if assessment_uuid not in ready_to_test.keys():
-            flash("Нет такого теста")
-            return redirect(url_for('test_start'))
-
-        cur_assessment = ready_to_test[assessment_uuid]
-        cur_assessment.started = datetime.datetime.now()
-        del ready_to_test[assessment_uuid]
-        passing.update({assessment_uuid: cur_assessment})
-
-        return render_template("test_site.html", title="Добро пожаловать!", assessment_uid=assessment_uuid, assessment=cur_assessment)
-
-    elif request.method == 'POST':
-        if assessment_uuid not in passing.keys():
-            flash("Нет такого теста")
-            return redirect(url_for('test_start'))
-
-        assessment = passing[assessment_uuid]
-        assessment.ended = datetime.datetime.now()
-        results = request.form
-
-        assessment.get_score(set(results))
-
-        del passing[assessment_uuid]
-        passed.update({assessment_uuid: assessment})
-
-        with open(os.path.join(app.config["DATA_PATH"], assessment_uuid + '.rjsn'), 'w', encoding='utf-8') as result_file:
-            res_descr = json.dumps(assessment.to_dict(), ensure_ascii=False)
-            result_file.write(res_descr)
-            result_file.flush()
-        return redirect(url_for('show_result', assessment_uid=assessment_uuid))
-
-
-@app.route('/test/showresult/<assessment_uid>')
-def show_result(assessment_uid):
-    """Show the result of the test"""
-    if assessment_uid not in passed.keys():
-        flash("Нет такого теста")
-        return redirect(url_for('index'))
-
-    assessment = passed[assessment_uid]
-    return render_template("result.html", assessment=assessment)
-
-
-@app.route('/login/', methods=['GET', 'POST'])
-@oid.loginhandler
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        flash("Вы запросили вход для " + form.openid.data)
-        return redirect('/index')
-
-    return render_template("login.html", title="Вход в систему", form=form, providers=app.config['OPENID_PROVIDERS'])
+    return render_template("test_list.html", tests=tasksets,
+                           test_keys=sorted(tasksets, key=lambda test_key: tasksets[test_key].name))

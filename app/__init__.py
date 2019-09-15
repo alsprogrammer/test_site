@@ -4,11 +4,14 @@ from flask_login import LoginManager
 from flask_openid import OpenID
 from config import basedir
 from pathlib import Path
-from assessment_estimation.subjects import Group
 import json
 
-from queue import Queue
-import threading
+from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryStudentStorage
+from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryAssessmentStorage
+from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryGroupStorage
+from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryTaskStorage
+from assessment_estimation.service import AssessmentService
+from assessment_estimation.assessment_generators import DefaultAssessmentGenerator
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -17,14 +20,17 @@ lm = LoginManager()
 lm.init_app(app)
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 
-groups_to_test = {}  # groups to test at the moment
-ready_to_test = {}  # the not started yet assessments (but given for the students)
-tasksets = {}  # the test ready to be used to generate assessments
-passing = {}  # the dict of the assessments that are passing at the moment
-passed = {}  # the dict of the passed assessments
+students_to_test = InMemoryStudentStorage()
+groups_to_test = InMemoryGroupStorage()
+ready_to_test = InMemoryAssessmentStorage()
+tasks = InMemoryTaskStorage()
+passing = InMemoryAssessmentStorage()
+passed = InMemoryAssessmentStorage()
 
-creating_assessments_queue = Queue(maxsize=0)
-tasksets_condition = threading.Condition()
+assessment_generator = DefaultAssessmentGenerator(4, ready_to_test)
+
+assessment_service = AssessmentService(students_to_test, groups_to_test, tasks, ready_to_test, passing,
+                                       passed, assessment_generator)
 
 from app import views
 from assessment_estimation.subjects import *

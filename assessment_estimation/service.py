@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Callable, Set
+from typing import List, Callable, Set, Dict, Iterable
 from assessment_estimation.storage.storages_abc import StudentStorage, TaskStorage, GroupStorage, AssessmentStorage
 from assessment_estimation.subjects import Student, Assessment, Task
 
@@ -8,7 +8,7 @@ class AssessmentService:
     def __init__(self, student_storage: StudentStorage, group_storage: GroupStorage,
                  task_storage: TaskStorage, waiting_assessment_storage: AssessmentStorage,
                  active_assessment_storage: AssessmentStorage, done_assessment_storage: AssessmentStorage,
-                 assessment_generator: Callable[[List[Task], int], Assessment],
+                 assessment_generator: Callable[[Student, List[Task], int, AssessmentStorage], None],
                  assessor: Callable[[Assessment], float]):
         self._student_storage = student_storage
         self._group_storage = group_storage
@@ -30,9 +30,9 @@ class AssessmentService:
             raise KeyError()
 
         possible_tasks = [cur_task for cur_task in self._task_storage if cur_task.theme in topic_names]
-        new_assessment = self._assessment_generator(possible_tasks, task_num)
-        new_assessment.student = self._student_storage[student_uid]
-        self._waiting_assessment_storage[new_assessment.uuid] = new_assessment
+        self._assessment_generator(self._student_storage[student_uid],
+                                   possible_tasks, task_num,
+                                   self._waiting_assessment_storage)
 
     def start_assessment(self, assessment_uid: str) -> Assessment:
         if assessment_uid not in self._waiting_assessment_storage:
@@ -45,11 +45,12 @@ class AssessmentService:
 
         return assessment
 
-    def answer_assessment(self, assessment_uid: str, checked_option_uids: List[str]):
+    def answer_assessment(self, assessment_uid: str, checked_option_uids: Iterable[str]):
         if assessment_uid not in self._active_assessment_storage:
             raise KeyError()
 
         assessment = self._active_assessment_storage[assessment_uid]
+        assessment.ended = datetime.datetime.now()
         self._done_assessment_storage[assessment.uuid] = assessment
         del self._active_assessment_storage[assessment_uid]
         assessment.checked_uuids.append(checked_option_uids)

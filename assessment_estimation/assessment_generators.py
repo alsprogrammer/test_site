@@ -1,37 +1,40 @@
 from abc import ABC, abstractmethod
-from typing import Callable, List
+from typing import List
 from queue import Queue
 import threading
 from random import shuffle
 
-from assessment_estimation.subjects import Task, Assessment
+from assessment_estimation.storage.storages_abc import AssessmentStorage
+from assessment_estimation.subjects import Task, Assessment, Student
 
 
 class AssessmentGenerator(ABC):
     @abstractmethod
-    def __call__(self, tasks: List[Task], task_num: int) -> Assessment:
+    def __call__(self, student: Student, tasks: List[Task], task_num: int, assessment_storage: AssessmentStorage):
         pass
 
 
 class DefaultAssessmentGenerator(AssessmentGenerator):
-    def __init__(self, threads_num: int, assessment_handler: Callable[[Queue], None]):
-        creating_assessments_queue = Queue(maxsize=0)
+    def __init__(self, threads_num: int, assessment_storage: AssessmentStorage):
+        self._calculate_assessment_threshold_queue = Queue(maxsize=0)
 
         for i in range(threads_num):
-            worker = threading.Thread(target=assessment_handler, args=(creating_assessments_queue,))
+            worker = threading.Thread(target=DefaultAssessmentGenerator._select_tasks,
+                                      args=(self._calculate_assessment_threshold_queue, assessment_storage))
             worker.setDaemon(True)
             worker.start()
 
-    def __call__(self, tasks: List[Task], task_num: int) -> Assessment:
+    def __call__(self, student: Student, tasks: List[Task], task_num: int, assessment_storage: AssessmentStorage):
         if len(tasks) < task_num:
             raise
 
         new_assessment = Assessment()
         new_assessment.tasks = DefaultAssessmentGenerator._select_tasks(tasks, task_num)
         DefaultAssessmentGenerator._set_answers_distractors(new_assessment)
-        DefaultAssessmentGenerator._calculate_and_set_threshold(new_assessment)
+        self._calculate_assessment_threshold_queue.put(new_assessment)
 
-        return new_assessment
+    def close(self):
+        self._calculate_assessment_threshold_queue.join()
 
     @staticmethod
     def _select_tasks(tasks: List[Task], task_num: int) -> List[Task]:
@@ -46,5 +49,8 @@ class DefaultAssessmentGenerator(AssessmentGenerator):
             assessment.distractors_uuids.update([cur_distractor.uuid for cur_distractor in cur_task.distractors])
 
     @staticmethod
-    def _calculate_and_set_threshold(assessment: Assessment):
-        pass
+    def _calculate_threshold(assessment_queue: Queue, assessment_storage: AssessmentStorage):
+        while True:
+            assessment = assessment_queue.get()
+            assessment.threshold = 60
+            assessment_storage[assessment.uuid] = assessment
