@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from werkzeug.utils import secure_filename
 from app import app, lm, oid, groups_to_test, passing, passed, ready_to_test
 from .forms import *
-from assessment_estimation.subjects import *
+from assessment_estimation.models import *
 import uuid
 import json
 import os

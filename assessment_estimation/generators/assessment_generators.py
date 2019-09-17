@@ -5,7 +5,7 @@ import threading
 from random import shuffle
 
 from assessment_estimation.storage.storages_abc import AssessmentStorage
-from assessment_estimation.subjects import Task, Assessment, Student
+from assessment_estimation.models import Task, Assessment, Student
 
 
 class AssessmentGenerator(ABC):

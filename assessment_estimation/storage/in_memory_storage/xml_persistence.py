@@ -2,7 +2,7 @@ from typing import Callable, Dict
 from xml.etree import ElementTree as ET
 
 from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import FileLike
-from assessment_estimation.subjects import Model
+from assessment_estimation.models import Model
 
 
 class XMLFile2Save(FileLike):

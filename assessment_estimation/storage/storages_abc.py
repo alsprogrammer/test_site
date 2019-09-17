@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import abc
 from typing import List
-from assessment_estimation.subjects import Model, Student, Group, Task
+from assessment_estimation.models import Model, Student, Group, Task
 
 
 class Storage(ABC, abc.MutableMapping):

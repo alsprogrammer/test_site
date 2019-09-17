@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Callable, Set, Dict, Iterable
 from assessment_estimation.storage.storages_abc import StudentStorage, TaskStorage, GroupStorage, AssessmentStorage
-from assessment_estimation.subjects import Student, Assessment, Task
+from assessment_estimation.models import Student, Assessment, Task
 
 
 class AssessmentService:

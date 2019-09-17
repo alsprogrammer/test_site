@@ -1,5 +1,5 @@
 import unittest
-from ..subjects import TasksPool
+from ..models import TasksPool
 
 
 class Test(unittest.TestCase):

@@ -10,8 +10,8 @@ from assessment_estimation.storage.in_memory_storage.in_memory_storages import I
 from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryAssessmentStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryGroupStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryTaskStorage
-from assessment_estimation.service import AssessmentService
-from assessment_estimation.assessment_generators import DefaultAssessmentGenerator
+from assessment_estimation.services.assessment_service import AssessmentService
+from assessment_estimation.generators.assessment_generators import DefaultAssessmentGenerator
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,7 +33,7 @@ assessment_service = AssessmentService(students_to_test, groups_to_test, tasks, 
                                        passed, assessment_generator)
 
 from app import views
-from assessment_estimation.subjects import *
+from assessment_estimation.models import *
 
 folder = Path(app.config['DATA_PATH'])
 
