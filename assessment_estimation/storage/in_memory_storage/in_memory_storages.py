@@ -2,7 +2,7 @@ from typing import List, Dict
 from xml.etree import ElementTree as ET
 
 from assessment_estimation.storage.in_memory_storage.xml_persistence import XMLFile2Save
-from assessment_estimation.models import Model, Assessment, Group, Task, Student
+from assessment_estimation.models.models import Model, Assessment, Group, Task
 from assessment_estimation.storage.storages_abc import AssessmentStorage, GroupStorage, TaskStorage, StudentStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import PersistableStorage
 

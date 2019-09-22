@@ -5,7 +5,7 @@ import threading
 from random import shuffle
 
 from assessment_estimation.storage.storages_abc import AssessmentStorage
-from assessment_estimation.models import Task, Assessment, Student
+from assessment_estimation.models.models import Task, Assessment, Student
 
 
 class AssessmentGenerator(ABC):
@@ -26,7 +26,7 @@ class DefaultAssessmentGenerator(AssessmentGenerator):
 
     def __call__(self, student: Student, tasks: List[Task], task_num: int, assessment_storage: AssessmentStorage):
         if len(tasks) < task_num:
-            raise
+            raise ValueError('The number of the tasks in the assessement you want is higher the the number of the available tasks.')
 
         new_assessment = Assessment()
         new_assessment.tasks = DefaultAssessmentGenerator._select_tasks(tasks, task_num)
