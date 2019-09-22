@@ -84,7 +84,7 @@ class Group(Model, FromToDict):
 
         student - the student to be added to the group
         """
-        self.students.update({uuid.uuid4().hex: student})
+        self.students.update({student.uuid: student})
         student.group = self
 
     def from_dict(self, descr):

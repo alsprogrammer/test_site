@@ -1,7 +1,7 @@
 import datetime
-from typing import List, Callable, Set, Dict, Iterable
+from typing import List, Callable, Set, Iterable
 from assessment_estimation.storage.storages_abc import StudentStorage, TaskStorage, GroupStorage, AssessmentStorage
-from assessment_estimation.models import Student, Assessment, Task
+from assessment_estimation.models.models import Student, Assessment, Task
 
 
 class AssessmentService:
@@ -30,9 +30,8 @@ class AssessmentService:
             raise KeyError()
 
         possible_tasks = [cur_task for cur_task in self._task_storage if cur_task.theme in topic_names]
-        self._assessment_generator(self._student_storage[student_uid],
-                                   possible_tasks, task_num,
-                                   self._waiting_assessment_storage)
+        student = self._student_storage[student_uid]
+        self._assessment_generator(student, possible_tasks, task_num, self._waiting_assessment_storage)
 
     def start_assessment(self, assessment_uid: str) -> Assessment:
         if assessment_uid not in self._waiting_assessment_storage:
@@ -45,7 +44,7 @@ class AssessmentService:
 
         return assessment
 
-    def answer_assessment(self, assessment_uid: str, checked_option_uids: Iterable[str]):
+    def answer_assessment(self, assessment_uid: str, checked_option_uids: Iterable[str]) -> Assessment:
         if assessment_uid not in self._active_assessment_storage:
             raise KeyError()
 
@@ -55,6 +54,8 @@ class AssessmentService:
         del self._active_assessment_storage[assessment_uid]
         assessment.checked_uuids.append(checked_option_uids)
         assessment.score = self._assessor(assessment)
+
+        return assessment
 
     def remove_assessment(self, assessment_uid: str):
         if assessment_uid not in self._waiting_assessment_storage:
