@@ -1,13 +1,13 @@
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, url_for, request
 from werkzeug.utils import secure_filename
-from app import app, lm, oid, groups_to_test, passing, passed, ready_to_test
+from flask_app import app, oid, groups_to_test, passing, passed, ready_to_test
 from .forms import *
 from assessment_estimation.models import *
 import uuid
 import json
 import os
 
-from app import assessment_service
+from flask_app import assessment_service
 
 
 @app.route('/test')
@@ -26,7 +26,7 @@ def test_start():
 def statistics():
     """Show the test system description page before test starts"""
     return render_template("statistics.html", passed=passed,
-                           passed_keys=sorted(passed, key=lambda passed_key:passed[passed_key].ended))
+                           passed_keys=sorted(passed, key=lambda passed_key: passed[passed_key].ended))
 
 
 @app.route('/test/showresult/<assessment_uid>')

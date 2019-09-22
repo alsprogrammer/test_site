@@ -18,6 +18,9 @@ class StudentService:
         self._student_storage[student.uuid] = student
 
     def create_group(self, speciality: str, creation_year: int, name: str, student_names: List[str]):
+        if name in [group.name for group in self._group_storage]:
+            raise NameError()
+
         group = Group(speciality, creation_year, name)
         self._group_storage[group.uuid] = group
 
