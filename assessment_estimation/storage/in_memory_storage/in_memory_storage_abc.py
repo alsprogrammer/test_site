@@ -4,8 +4,6 @@ from typing import Any, Callable, Dict
 from assessment_estimation.storage.storages_abc import Storage
 from assessment_estimation.models.models import Model
 
-import xml.etree.ElementTree as ET
-
 
 class FileLike(ABC, _IOBase):
     pass
