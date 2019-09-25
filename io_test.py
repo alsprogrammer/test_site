@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from types import TracebackType
 from typing import IO, Optional, Type, Iterator, Iterable, Dict, List
+import xml.etree.ElementTree as ET
+import pathlib
 
 
 class FormattedFileLike(IO[Dict], ABC):
@@ -79,9 +81,16 @@ class FormattedFileLike(IO[Dict], ABC):
 
 
 class XMLFormattedFileLike(FormattedFileLike):
-    def __init__(self, filename: str, read: bool):
+    def __init__(self, filename: str, read: bool, element_name: str, root_element_name: str):
         self._readable = read
+        self._element_name = element_name
         self._filename = filename
+        self._path = pathlib.Path(self._filename)
+
+        if self._path.exists() and self._path.is_file():
+            self._root = ET.parse(filename).getroot()
+        else:
+            self._root = ET.Element(root_element_name)
 
     def readable(self) -> bool:
         return self._readable
@@ -90,10 +99,10 @@ class XMLFormattedFileLike(FormattedFileLike):
         return not self._readable
 
     def close(self) -> None:
-        pass
+        self.flush()
 
     def flush(self) -> None:
-        pass
+        ET.ElementTree(self._root).write(self._filename)
 
     def read(self, n: int = ...) -> Dict:
         pass
@@ -114,10 +123,11 @@ class XMLFormattedFileLike(FormattedFileLike):
         pass
 
     def write(self, s: Dict) -> int:
-        pass
+        ET.SubElement(self._root, self._element_name, attrib=s)
 
     def writelines(self, lines: Iterable[Dict]) -> None:
-        pass
+        for s in lines:
+            self.write(s)
 
     def __next__(self) -> Dict:
         pass
@@ -133,11 +143,14 @@ class XMLFormattedFileLike(FormattedFileLike):
         pass
 
 
-def open(name: str, options: str) -> FormattedFileLike:
-    return XMLFormattedFileLike(name, True if options == "r" else False)
+def open(name: str, options: str, root_element_name: str, element_name: str) -> FormattedFileLike:
+    xml_file = XMLFormattedFileLike(name, True if options == "r" else False, element_name, root_element_name)
+    return xml_file
 
 
 if __name__ == "__main__":
-    with open("/tmp/1.xml", "w") as xml_file:
-        new_dict = {"a": 1, "b": 2}
-        xml_file.write(new_dict)
+    xml_file = open("/tmp/1.xml", "w", "Test", "Task")
+    new_dict = {"a": 1, "b": 2}
+    xml_file.write(new_dict)
+    xml_file.close()
+
