@@ -150,7 +150,7 @@ def open(name: str, options: str, root_element_name: str, element_name: str) -> 
 
 if __name__ == "__main__":
     xml_file = open("/tmp/1.xml", "w", "Test", "Task")
-    new_dict = {"a": 1, "b": 2}
+    new_dict = {"a": "1", "b": "2"}
     xml_file.write(new_dict)
     xml_file.close()
 

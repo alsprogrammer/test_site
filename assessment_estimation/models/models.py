@@ -1,3 +1,5 @@
+from typing import Iterable, Optional
+
 from bs4 import BeautifulSoup, Tag
 from abc import ABCMeta, ABC, abstractmethod
 import copy
@@ -405,3 +407,22 @@ class Assessment(Model, FromToDict):
                                'tasks': self.tasks, 'threshold': self.threshold,
                                'checked': list(self.checked_uuids), 'mistaken': list(self.mistaken_uuids)})
         return dict_to_export
+
+
+class TopicSet(Model):
+    def __init__(self, topics_iterable: Optional[Iterable[str]]=None) -> None:
+        if topics_iterable:
+            self._topics_set = set(topics_iterable)
+        else:
+            self._topics_set = set()
+
+    def get_topics(self) -> Iterable[str]:
+        return set(self._topics_set)
+
+    def add_topic(self, topic: str) -> None:
+        if topic:
+            self._topics_set.add(topic)
+
+    def remove_topic(self, topic: str) -> None:
+        if topic:
+            self._topics_set.remove(topic)

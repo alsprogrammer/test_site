@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import abc
-from typing import List
-from assessment_estimation.models.models import Group, Task
+from typing import List, Iterable
+from assessment_estimation.models.models import Group, Task, TopicSet
 
 
 class Storage(ABC, abc.MutableMapping):
@@ -14,11 +14,11 @@ class StudentStorage(Storage, ABC):
 
 class GroupStorage(Storage, ABC):
     @abstractmethod
-    def get_by_year(self, year: int) -> List[Group]:
+    def get_by_year(self, year: int) -> Iterable[Group]:
         pass
 
     @abstractmethod
-    def get_by_speciality(self, speciality_name: str) -> List[Group]:
+    def get_by_speciality(self, speciality_name: str) -> Iterable[Group]:
         pass
 
 
@@ -28,9 +28,15 @@ class AssessmentStorage(Storage, ABC):
 
 class TaskStorage(Storage, ABC):
     @abstractmethod
-    def get_by_topic(self, topic_name: str) -> List[Task]:
+    def get_by_topic(self, topic_name: str) -> Iterable[Task]:
         pass
 
     @abstractmethod
-    def get_topic_names(self, topic_name: str) -> List[str]:
+    def get_topic_names(self, topic_name: str) -> Iterable[str]:
+        pass
+
+
+class TopicsSet(Storage, ABC):
+    @abstractmethod
+    def get_by_topic_uid_in(self, topic_uid: str) -> Iterable[TopicSet]:
         pass
