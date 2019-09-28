@@ -19,7 +19,7 @@ class DefaultAssessmentGenerator(AssessmentGenerator):
         self._calculate_assessment_threshold_queue = Queue(maxsize=0)
 
         for i in range(threads_num):
-            worker = threading.Thread(target=DefaultAssessmentGenerator._select_tasks,
+            worker = threading.Thread(target=DefaultAssessmentGenerator._calculate_threshold,
                                       args=(self._calculate_assessment_threshold_queue, assessment_storage))
             worker.setDaemon(True)
             worker.start()

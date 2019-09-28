@@ -10,3 +10,4 @@ numpy
 pathlib==1.0.1
 selenium==3.5.0
 lxml
+xmlschema

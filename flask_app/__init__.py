@@ -2,6 +2,8 @@ import os
 from flask import Flask
 from flask_login import LoginManager
 from flask_openid import OpenID
+
+from assessment_estimation.assessors.default_assessor import DefaultAssessor
 from config import basedir
 from pathlib import Path
 import json
@@ -30,10 +32,9 @@ passed = InMemoryAssessmentStorage()
 assessment_generator = DefaultAssessmentGenerator(4, ready_to_test)
 
 assessment_service = AssessmentService(students_to_test, groups_to_test, tasks, ready_to_test, passing,
-                                       passed, assessment_generator)
+                                       passed, assessment_generator, DefaultAssessor())
 
-from app import views
-from assessment_estimation.models import *
+from flask_app import views
 
 folder = Path(app.config['DATA_PATH'])
 
@@ -50,13 +51,13 @@ for cur_file in files_with_maps:
     groups_to_test.update({cur_file.name[:-5]: new_group})
 
 # loading tests
-test_files = folder.glob('*.tjsn')
-for cur_file in test_files:
-    test_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r", encoding='utf-8')
-    test_xml = test_file.read()
-    test_file.close()
-    test_json = json.loads(test_xml)
-
-    new_test = TasksPool()
-    new_test.from_dict(test_json)
-    tasksets.update({cur_file.name[:-5]: new_test})
+#test_files = folder.glob('*.tjsn')
+#for cur_file in test_files:
+#    test_file = open(os.path.join(app.config["DATA_PATH"], cur_file.name), mode="r", encoding='utf-8')
+#    test_xml = test_file.read()
+#    test_file.close()
+#    test_json = json.loads(test_xml)
+#
+#    new_test = TasksPool()
+#    new_test.from_dict(test_json)
+#    tasksets.update({cur_file.name[:-5]: new_test})
