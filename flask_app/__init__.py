@@ -3,7 +3,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_openid import OpenID
 
-from assessment_estimation.assessors.default_assessor import DefaultAssessor
+from assessment_estimation.models.assessors import DefaultAssessor
 from config import basedir
 from pathlib import Path
 import json
@@ -13,7 +13,7 @@ from assessment_estimation.storage.in_memory_storage.in_memory_storages import I
 from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryGroupStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storages import InMemoryTaskStorage
 from assessment_estimation.services.assessment_service import AssessmentService
-from assessment_estimation.generators.assessment_generators import DefaultAssessmentGenerator
+from assessment_estimation.models.generators.assessment_generators import DefaultAssessmentGenerator
 
 app = Flask(__name__)
 app.config.from_object('config')
