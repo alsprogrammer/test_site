@@ -1,13 +1,9 @@
 from typing import Iterable, Optional
 
-from bs4 import BeautifulSoup, Tag
 from abc import ABCMeta, ABC, abstractmethod
-import copy
 import uuid
-import random
 import datetime
 from assessment_estimation.func_libs import assesst
-import numpy as np
 
 
 class FromToDict:
@@ -93,8 +89,10 @@ class Group(Model, FromToDict):
         self.speciality = descr["spec"]
         self.start_year = descr["year"]
         self.name = descr["name"]
-        students = {cur_stud_uid: Student(descr["students"][cur_stud_uid]["last_name"], first_name=descr["students"][cur_stud_uid]["first_name"], sur_name=descr["students"][cur_stud_uid]["surname"],
-                            group=self) for cur_stud_uid in descr["students"]}
+        students = {cur_stud_uid: Student(descr["students"][cur_stud_uid]["last_name"],
+                                          first_name=descr["students"][cur_stud_uid]["first_name"],
+                                          sur_name=descr["students"][cur_stud_uid]["surname"],
+                                          group=self) for cur_stud_uid in descr["students"]}
         self.students = students
 
     def to_dict(self):

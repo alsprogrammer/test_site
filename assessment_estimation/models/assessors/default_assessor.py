@@ -1,4 +1,4 @@
-from assessment_estimation.models.assessors import Assessor
+from assessment_estimation.models.assessors.assesor_abc import Assessor
 from assessment_estimation.models.models import Assessment
 
 

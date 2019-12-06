@@ -3,7 +3,8 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_openid import OpenID
 
-from assessment_estimation.models.assessors import DefaultAssessor
+from assessment_estimation.models.assessors.default_assessor import DefaultAssessor
+from assessment_estimation.models.models import Group
 from config import basedir
 from pathlib import Path
 import json
