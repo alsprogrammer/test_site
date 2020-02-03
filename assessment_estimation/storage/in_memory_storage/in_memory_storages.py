@@ -1,7 +1,8 @@
-from typing import List, Dict
+from typing import List, Dict, Iterable
 
-from assessment_estimation.models.models import Model, Assessment, Group, Task
-from assessment_estimation.storage.storages_abc import AssessmentStorage, GroupStorage, TaskStorage, StudentStorage
+from assessment_estimation.models.models import Model, Assessment, Group, Task, TopicSet
+from assessment_estimation.storage.storages_abc import AssessmentStorage, GroupStorage, TaskStorage, StudentStorage, \
+    TopicSetsStorage
 from assessment_estimation.storage.in_memory_storage.in_memory_storage_abc import InMemoryStorage
 
 
@@ -30,6 +31,11 @@ class InMemoryTaskStorage(InMemoryStorage, TaskStorage):
 
     def get_topic_names(self, topic_name: str) -> List[str]:
         return list(set([self[cur_element_id].theme for cur_element_id in self]))
+
+
+class InMemoryTopicSetsStorage(InMemoryStorage, TopicSetsStorage):
+    def get_by_topic_uid_in(self, topic_uid: str) -> Iterable[TopicSet]:
+        pass
 
 
 def dict2assessment(dict_to_transform: Dict) -> Model:

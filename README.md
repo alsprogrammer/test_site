@@ -8,8 +8,8 @@ This is a web application for knowledge assesstment.
 This application is developed to be used at educational organisations (for my own use mostly, of course). The main idea is to determine whether a student passed the assesstment or not using statistical approach. The application determines the threshold that can be passed by chance for the assesstment a student is passing. If the student overcomes that threshold the assessment is passed and the result is positive.
 
 ## Dependencies
-The Python interpreter itself, of course, I'm currently using Python 3.7 :)
-The web part of the project is based on the [Flask](http://flask.pocoo.org/) framework.
+The Python interpreter itself, of course, I'm currently using Python 3.7
+The web part of the project is based on the [Flask-RESTFul](https://github.com/flask-restful/flask-restful/) framework.
 
 ## Installation
 To be developed now as we are moving to a new architecture.

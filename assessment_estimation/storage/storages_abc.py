@@ -36,7 +36,7 @@ class TaskStorage(Storage, ABC):
         pass
 
 
-class TopicsSet(Storage, ABC):
+class TopicSetsStorage(Storage, ABC):
     @abstractmethod
     def get_by_topic_uid_in(self, topic_uid: str) -> Iterable[TopicSet]:
         pass

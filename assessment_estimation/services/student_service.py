@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple
 
 from assessment_estimation.models.models import Group, Student
 from assessment_estimation.storage.storages_abc import StudentStorage, GroupStorage
@@ -9,32 +9,42 @@ class StudentService:
         self._student_storage = student_storage
         self._group_storage = group_storage
 
-    def create_student(self, first_name: str, sur_name: str, last_name: str, group_uid: str):
+    def create_student(self, first_name: str, sur_name: str, last_name: str, group_uid: str) -> Student:
         if group_uid not in self._group_storage:
             raise KeyError()
 
         group = self._group_storage[group_uid]
         student = Student(last_name, first_name, sur_name, group)
         self._student_storage[student.uuid] = student
+        group.students[student.uuid] = student
 
-    def create_group(self, speciality: str, creation_year: int, name: str, student_names: List[str]):
+        return student
+
+    def create_group(self, speciality: str, creation_year: int, name: str,
+                     student_names: List[Tuple[str, str, str]] = None) -> Group:
         if name in [group.name for group in self._group_storage]:
             raise NameError('The group with the name {} already exists'.format(name))
 
         group = Group(speciality, creation_year, name)
         self._group_storage[group.uuid] = group
+        if student_names:
+            for last_name, first_name, sur_name in student_names:
+                self.create_student(first_name, sur_name, last_name, group.uuid)
+
+        return group
 
     def delete_student(self, student_uid: str):
         if student_uid not in self._student_storage:
             raise KeyError()
 
         student = self._student_storage[student_uid]
+        group = student.group
 
-        del student.group.students[student_uid]
+        group.students.remove(student_uid)
         del self._student_storage[student_uid]
 
     def delete_group(self, group_uid: str):
-        if group_uid not in self._group_storage:
+        if group_uid not in self._group_storage.keys():
             raise KeyError()
 
         group = self._group_storage[group_uid]
@@ -44,9 +54,9 @@ class StudentService:
         del self._group_storage[group_uid]
 
     def put_student_to_group(self, student_uid: str, group_uid: str):
-        if group_uid not in self._group_storage:
+        if group_uid not in self._group_storage.keys():
             raise KeyError()
-        if student_uid not in self._student_storage:
+        if student_uid not in self._student_storage.keys():
             raise KeyError()
 
         group = self._group_storage[group_uid]
