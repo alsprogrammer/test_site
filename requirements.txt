@@ -13,3 +13,5 @@ lxml
 xmlschema
 python-dotenv
 blinker
+pydantic==1.7.3
+boto3==1.16.62
