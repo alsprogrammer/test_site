@@ -27,10 +27,10 @@ class InMemoryGroupStorage(InMemoryStorage, GroupStorage):
 class InMemoryTaskStorage(InMemoryStorage, TaskStorage):
     def get_by_topic(self, topic_name: str) -> List[Task]:
         return [self[cur_element_id] for cur_element_id in self
-                if self[cur_element_id].theme == topic_name]
+                if self[cur_element_id].topics_task_is_on == topic_name]
 
     def get_topic_names(self, topic_name: str) -> List[str]:
-        return list(set([self[cur_element_id].theme for cur_element_id in self]))
+        return list(set([self[cur_element_id].topics_task_is_on for cur_element_id in self]))
 
 
 class InMemoryTopicSetsStorage(InMemoryStorage, TopicSetsStorage):

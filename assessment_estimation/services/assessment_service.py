@@ -37,7 +37,7 @@ class AssessmentService:
         if student_uid not in self._student_storage.keys():
             raise StudentNotFound()
 
-        possible_tasks = [cur_task for cur_task in self._task_storage if cur_task.theme in topic_names]
+        possible_tasks = [cur_task for cur_task in self._task_storage if cur_task.topics_task_is_on in topic_names]
         student = self._student_storage[student_uid]
         self._assessment_generator(student, possible_tasks, task_num, self._waiting_assessment_storage)
 

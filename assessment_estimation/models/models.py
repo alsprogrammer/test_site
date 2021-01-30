@@ -68,14 +68,18 @@ class Group(Model):
 
 class Task(Model):
     """Describes single task in an assessment"""
-    theme: str
+    topics_task_is_on: List[str] = []
     stem: Union[str, 'TaskOption']
     answers: Set['TaskOption'] = set()
     distractors: Set['TaskOption'] = set()
 
-    def __init__(self, stem: Union[str, 'TaskOption'] = "", theme: str = ""):
+    def __init__(self, stem: Union[str, 'TaskOption'], topics: Union[str, Iterable[str]]):
+        assert stem is not None, "Stem has to be provided"
+        assert topics is not None, "The topics the task is on have to be provided"
+
         super().__init__()
-        self.theme = theme
+
+        self.topics_task_is_on = list(topics) if isinstance(topics, Iterable) else [topics]
         self.stem = stem
 
     def add_answer(self, answer: Union[str, 'TaskOption']):
