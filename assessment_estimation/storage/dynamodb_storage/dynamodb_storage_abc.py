@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Iterator, Any, Dict, List, Optional
 
 import boto3
+from botocore.exceptions import ClientError
 
+from assessment_estimation.models.models import Model
 from assessment_estimation.storage.storages_abc import Storage
 
 
@@ -21,20 +23,30 @@ class DynamoDBStorage(Storage, ABC):
 
     @abstractmethod
     def __init__(self,
+                 table_name: str,
                  endpoint_url: Optional[str],
                  provisioned_throughput: Optional[Dict[str, int]]
                  ):
         # provide table name, key_schema, and attribute_definitions here
-        pass
+        self.table_name = table_name
+        self.endpoint_url = endpoint_url
+        self.provisioned_throughput = provisioned_throughput
+        self._connect_to_db()
 
-    def __setitem__(self, k: str, v: Any) -> None:
-        pass
+    def __setitem__(self, k: str, v: Model) -> None:
+        v.uuid = k
+        self.table.put_item(Item=v)
 
     def __delitem__(self, v: str) -> None:
         pass
 
-    def __getitem__(self, k: str) -> Any:
-        pass
+    def __getitem__(self, k: str) -> Model:
+        try:
+            response = self.table.get_item(Key={'uuid': k})
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            return response['Item']
 
     def __len__(self) -> int:
         pass
