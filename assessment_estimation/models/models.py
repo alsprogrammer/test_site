@@ -1,22 +1,53 @@
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict, Set, Union, List
 
-from bs4 import BeautifulSoup, Tag
-from abc import ABCMeta, ABC, abstractmethod
-import copy
+from abc import ABC
 import uuid
-import random
 import datetime
-from assessment_estimation.func_libs import assesst
-import numpy as np
+
+from pydantic.main import BaseModel
 
 
-class Model(ABC):
+class Model(BaseModel, ABC):
+    uuid: str = uuid.uuid4().hex
+
     def __init__(self):
-        self.uuid = uuid.uuid4().hex
+        super(Model, self).__init__()
+
+
+class Student(Model):
+    """The student class. Describes the student's name and group"""
+    first_name: str
+    sur_name: str
+    last_name: str
+    group_uuid: str
+    group_name: str
+
+    def __init__(self, last_name: str = "", first_name: str = "", sur_name: str = "", group: 'Group' = None):
+        """Create a new student.
+
+        Keyword arguments:
+        last_name - last name of the student
+        first_name - first name of the student
+        sur_name - surname of the student (default is blank line)
+        group - group the student blongs to (default is None)
+        """
+        super().__init__()
+        self.first_name = first_name
+        self.sur_name = sur_name
+        self.last_name = last_name
+        self.group_uuid = group.uuid
+        self.group_name = group.name
+
+    def __repr__(self):
+        return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.first_name, gname=self.group_name)
 
 
 class Group(Model):
     """The group class. Describes the group and its students"""
+    speciality: str
+    start_year: int
+    name: str
+    students: Dict[str, str] = {}  # student id -> student full name
 
     def __init__(self, speciality, year, name):
         """Create a new group.
@@ -30,45 +61,24 @@ class Group(Model):
         self.speciality = speciality
         self.start_year = year
         self.name = name
-        self.students = {}
 
     def __repr__(self):
         return "{name} ({year}, {spec})".format(name=self.name, year=self.start_year, spec=self.speciality)
 
 
-class Student(Model):
-    """The student class. Describes the student's name and group"""
-
-    def __init__(self, last_name: str = "", first_name: str = "", sur_name:str = "", group: Group = None):
-        """Create a new student.
-
-        Keyword arguments:
-        last_name - last name of the student
-        first_name - first name of the student
-        sur_name - surname of the student (default is blank line)
-        group - group the student blongs to (default is None)
-        """
-        super().__init__()
-        self.first_name = first_name
-        self.sur_name = sur_name
-        self.last_name = last_name
-        self.group = group
-
-    def __repr__(self):
-        return "{lname} {fname} ({gname})".format(lname=self.last_name, fname=self.first_name, gname=self.group.name)
-
-
 class Task(Model):
     """Describes single task in an assessment"""
-    def __init__(self, stem="", theme=None, picture=None):
+    theme: str
+    stem: Union[str, 'TaskOption']
+    answers: Set['TaskOption'] = set()
+    distractors: Set['TaskOption'] = set()
+
+    def __init__(self, stem: Union[str, 'TaskOption'] = "", theme: str = ""):
         super().__init__()
         self.theme = theme
         self.stem = stem
-        self.picture = picture
-        self.answers = set()
-        self.distractors = set()
 
-    def add_answer(self, answer):
+    def add_answer(self, answer: Union[str, 'TaskOption']):
         """
         Add answer to the task
         :param answer: TaskOption, answer to add
@@ -79,7 +89,7 @@ class Task(Model):
         else:
             raise TypeError()
 
-    def add_distractor(self, distractor):
+    def add_distractor(self, distractor: Union[str, 'TaskOption']):
         """
         Add distractor to the task
         :param distractor: TaskOption, distractor to add
@@ -90,22 +100,19 @@ class Task(Model):
         else:
             raise TypeError()
 
-    def get_html_picture(self):
-        return "data:image/png;base64, {picture_code}".format(picture_code=self.picture)
-
     def __repr__(self):
         return "{}".format(self.stem)
 
 
 class TaskOption(Model):
-    """Single task element - answer or distractor"""
-    def __init__(self, text="", picture=None):
+    """Single task element - a stem, an answer, or a distractor"""
+    text: str
+    picture: Optional[str]  # a base64-encoded png picture
+
+    def __init__(self, text: str = "", picture: str = None):
         super().__init__()
         self.text = text
         self.picture = picture
-
-    def get_html_picture(self):
-        return "data:image/png;base64, {picture_code}".format(picture_code=self.picture)
 
     def __repr__(self):
         return "{}".format(self.text)
@@ -113,46 +120,39 @@ class TaskOption(Model):
 
 class Assessment(Model):
     """The assessment for the student"""
-    def __init__(self, student=None):
+    created: datetime = datetime.datetime.now()
+    started: Optional[datetime] = None
+    ended: Optional[datetime] = None
+    time_limit: int
+    name: str = ""
+    answer_times: List[int] = []
+    student_uuid: str  # the student to be tested
+    answers_uuids: Set[str] = set()  # a list of answers UUIDs
+    distractors_uuids: Set[str] = set()  # a list of distractors UUIDs
+    tasks_uuids: List[str] = []  # a list of all task uuids
+    threshold: int = 50
+    checked_uuids: List[str] = set()
+    mistaken_uuids: List[str] = set()
+    mistaken_tasks: List[str] = set()
+    score: float = 0
+    real_score: float = 0
+
+    def __init__(self, student: Union[str, Student], name: str):
         """
         Create a new assessment fro the given student
         :param student: a student to create the assessment for
         """
+        assert name is not None and name != "", "The name of the test has to be provided"
         super().__init__()
-        self.created = datetime.datetime.now()
-        self.started = None
-        self.ended = None
-        self.time_limit = 0
-        self.name = ""
-        self.answer_times = []
-        self.student = student  # the student to be tested
-        self.answers_uuids = set()  # a list of answers UUIDs
-        self.distractors_uuids = set()  # a list of distractors UUIDs
-        self.tasks = []  # a list of dicts each contains stem and a list of options (not answers/distractors)
-        self.threshold = 50
-        self.checked_uuids = set()
-        self.mistaken_uuids = set()
-        self.mistaken_tasks = set()
-        self.score = 0
-        self.real_score = 0
-        self.uuid = uuid.uuid4().hex
+        self.name = name
+        self.student_uuid = student.uuid if isinstance(student, Student) else student
 
 
-class TopicSet(Model):
-    def __init__(self, topics_iterable: Optional[Iterable[str]] = None) -> None:
+class TopicSet(Set, Model):
+    def __init__(self, topics_to_add: Optional[Iterable[str]] = None):
         super().__init__()
-        if topics_iterable:
-            self._topics_set = set(topics_iterable)
+        if topics_to_add:
+            for current_topic in topics_to_add:
+                self.add(current_topic)
         else:
-            self._topics_set = set()
-
-    def get_topics(self) -> Iterable[str]:
-        return set(self._topics_set)
-
-    def add_topic(self, topic: str) -> None:
-        if topic:
-            self._topics_set.add(topic)
-
-    def remove_topic(self, topic: str) -> None:
-        if topic:
-            self._topics_set.remove(topic)
+            self.clear()

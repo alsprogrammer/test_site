@@ -78,7 +78,7 @@ class AssessmentService:
         if assessment_uid not in self._active_assessment_storage.keys():
             raise AssessmentNotFound()
 
-        assessment = self[assessment_uid]
+        assessment = self._active_assessment_storage[assessment_uid]
         assessment.ended = datetime.datetime.now()
         self._assessor(assessment)
         self._done_assessment_storage[assessment_uid] = assessment
