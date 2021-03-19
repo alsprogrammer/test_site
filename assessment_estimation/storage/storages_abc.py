@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from collections import abc
-from typing import List, Iterable
+from typing import Iterable, Mapping
 from assessment_estimation.models.models import Group, Task, TopicSet
 
 
-class Storage(ABC, abc.MutableMapping):
+class Storage(ABC, Mapping):
     pass
 
 

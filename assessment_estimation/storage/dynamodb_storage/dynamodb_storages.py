@@ -4,21 +4,21 @@ from assessment_estimation.storage.storages_abc import AssessmentStorage, \
     StudentStorage, GroupStorage, TaskStorage, TopicSetsStorage
 
 
-class InMemoryAssessmentStorage(DynamoDBStorage, AssessmentStorage):
+class DynamoDBAssessmentStorage(DynamoDBStorage, AssessmentStorage):
     pass
 
 
-class InMemoryStudentStorage(DynamoDBStorage, StudentStorage):
+class DynamoDBStudentStorage(DynamoDBStorage, StudentStorage):
     pass
 
 
-class InMemoryGroupStorage(DynamoDBStorage, GroupStorage):
+class DynamoDBGroupStorage(DynamoDBStorage, GroupStorage):
     pass
 
 
-class InMemoryTaskStorage(DynamoDBStorage, TaskStorage):
+class DynamoDBTaskStorage(DynamoDBStorage, TaskStorage):
     pass
 
 
-class InMemoryTopicSetsStorage(DynamoDBStorage, TopicSetsStorage):
+class DynamoDBTopicSetsStorage(DynamoDBStorage, TopicSetsStorage):
     pass

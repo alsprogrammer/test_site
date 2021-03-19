@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Iterator, Any, Dict, List, Optional
 
 import boto3
@@ -9,9 +9,10 @@ from assessment_estimation.storage.storages_abc import Storage
 
 
 class DynamoDBStorage(Storage, ABC):
-    dynamodb: object
-    table: object
+    dynamodb: boto3.resources.factory.dynamodb.ServiceResource
+    table: boto3.resources.factory.dynamodb.Table
 
+    region: str
     endpoint_url: str = 'http://localhost:8000'
     table_name: str
     key_schema: List[Dict[str, str]]
@@ -21,24 +22,40 @@ class DynamoDBStorage(Storage, ABC):
         'WriteCapacityUnits': 10
     }
 
-    @abstractmethod
     def __init__(self,
                  table_name: str,
                  endpoint_url: Optional[str],
-                 provisioned_throughput: Optional[Dict[str, int]]
+                 region: str,
+                 provisioned_throughput: Optional[Dict[str, int]] = None
                  ):
         # provide table name, key_schema, and attribute_definitions here
         self.table_name = table_name
         self.endpoint_url = endpoint_url
-        self.provisioned_throughput = provisioned_throughput
+        self.region = region
+        self.provisioned_throughput = provisioned_throughput or {
+                     'ReadCapacityUnits': 10,
+                     'WriteCapacityUnits': 10
+                 }
         self._connect_to_db()
 
     def __setitem__(self, k: str, v: Model) -> None:
         v.uuid = k
         self.table.put_item(Item=v)
 
-    def __delitem__(self, v: str) -> None:
-        pass
+    def __delitem__(self, v: Model) -> None:
+        try:
+            response = self.table.delete_item(
+                Key={
+                    'uuid': v.uuid,
+                },
+            )
+        except ClientError as e:
+            if e.response['Error']['Code'] == "ConditionalCheckFailedException":
+                print(e.response['Error']['Message'])
+            else:
+                raise
+        else:
+            return response
 
     def __getitem__(self, k: str) -> Model:
         try:
@@ -49,15 +66,17 @@ class DynamoDBStorage(Storage, ABC):
             return response['Item']
 
     def __len__(self) -> int:
-        pass
+        return self.table.item_countS
 
     def __iter__(self) -> Iterator[Any]:
-        pass
+        raise ValueError("You should never, NEVER iterate through the whole "
+                         "storage")
 
     def _connect_to_db(self) -> (object, object):
         if not self.dynamodb:
             self.dynamodb = boto3.resource('dynamodb',
-                                           endpoint_url=self.endpoint_url)
+                                           endpoint_url=self.endpoint_url,
+                                           region=self.region)
         self.table = self.dynamodb.Table(self.table_name)
         if not self.table:
             self.table = self._create_table_if_not_exists()

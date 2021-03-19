@@ -131,6 +131,7 @@ class Assessment(Model):
     name: str = ""
     answer_times: List[int] = []
     student_uuid: str  # the student to be tested
+    student_name: str
     answers_uuids: Set[str] = set()  # a list of answers UUIDs
     distractors_uuids: Set[str] = set()  # a list of distractors UUIDs
     tasks_uuids: List[str] = []  # a list of all task uuids
@@ -141,15 +142,16 @@ class Assessment(Model):
     score: float = 0
     real_score: float = 0
 
-    def __init__(self, student: Union[str, Student], name: str):
+    def __init__(self, student: Student, name: str):
         """
-        Create a new assessment fro the given student
+        Create a new assessment from the given student
         :param student: a student to create the assessment for
         """
         assert name is not None and name != "", "The name of the test has to be provided"
         super().__init__()
         self.name = name
-        self.student_uuid = student.uuid if isinstance(student, Student) else student
+        self.student_uuid = student.uuid
+        self.student_name = str(student)
 
 
 class TopicSet(Set, Model):

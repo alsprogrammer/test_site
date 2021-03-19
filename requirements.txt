@@ -15,3 +15,5 @@ python-dotenv
 blinker
 pydantic==1.7.3
 boto3==1.16.62
+sqlitedict==1.7.0
+jsonpickle==2.0.0
